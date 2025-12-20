@@ -4,9 +4,12 @@ import {
   applyNodeChanges,
   Background,
   Controls,
+  Handle,
+  Position,
   ReactFlow,
+  ReactFlowProvider,
 } from "@xyflow/react";
-import React, { use, useCallback, useEffect, useState } from "react";
+import React, { use, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Center,
   CircularLoader,
@@ -14,29 +17,182 @@ import {
   Layer,
   LinearLoader,
   spacers,
+  elevations,
+  Menu,
+  MenuItem,
 } from "@dhis2/ui";
 import { Query, useDataQuery } from "@dhis2/app-service-data";
+import { startCase } from "lodash";
 
-const ProgramNode = () => {
+const ProgramAttributeNode = ({ attributes }) => {
+  return (
+    <div
+      style={{
+        borderBottomStyle: "solid",
+        borderBottomWidth: 0.7,
+        borderBottomColor: colors.grey300,
+      }}
+    >
+      <div
+        style={{
+          fontSize: 6,
+          padding: spacers.dp4,
+          backgroundColor: colors.grey200,
+          color: colors.grey800,
+        }}
+      >
+        Attributes
+      </div>
+      <ul>
+        {attributes.map((attribute) => {
+          return (
+            <li
+              key={attribute.id}
+              style={{
+                borderTopStyle: "solid",
+                borderTopColor: colors.green100,
+                borderTopWidth: 0.6,
+                padding: spacers.dp4,
+                fontSize: 6,
+              }}
+            >
+              {attribute.displayName}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
+
+const ProgramStageNode = ({ programType, programStages }) => {
+  const isTrackerProgram = useMemo(() => {
+    return programType === "WITH_REGISTRATION";
+  }, [programType]);
+  return (
+    <div>
+      {isTrackerProgram && (
+        <div
+          style={{
+            padding: spacers.dp4,
+            backgroundColor: colors.grey200,
+            fontSize: 6,
+            color: colors.grey800,
+          }}
+        >
+          Stages
+        </div>
+      )}
+      {programStages.map((programStage) => {
+        return (
+          <div key={programStage.id} style={{}}>
+            {isTrackerProgram && (
+              <div
+                style={{
+                  fontSize: 6,
+                  fontWeight: 500,
+                  padding: spacers.dp4,
+                  backgroundColor: colors.teal100,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <div>{programStage.displayName}</div>
+                {programStage.repeatable && (
+                  <div
+                    style={{
+                      fontWeight: 400,
+                      color: colors.grey600,
+                      fontSize: 5,
+                    }}
+                  >
+                    Repeatable
+                  </div>
+                )}
+              </div>
+            )}
+            <ul>
+              {(programStage.programStageDataElements || []).map(
+                (programStageDataElement) => {
+                  return (
+                    <li
+                      key={programStageDataElement.dataElement?.id}
+                      style={{
+                        borderTopStyle: "solid",
+                        borderTopColor: colors.green100,
+                        borderTopWidth: 0.6,
+                        padding: spacers.dp4,
+                        fontSize: 6,
+                      }}
+                    >
+                      {programStageDataElement.dataElement?.displayName}
+                    </li>
+                  );
+                }
+              )}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+const ProgramNode = ({ data, isConnectable }) => {
+  const {
+    displayName,
+    programType,
+    programTrackedEntityAttributes,
+    programStages,
+  } = data;
+
+  const attributes = useMemo(() => {
+    return (programTrackedEntityAttributes || []).map(
+      (programTrackedEntityAttribute) =>
+        programTrackedEntityAttribute.trackedEntityAttribute
+    );
+  }, [programTrackedEntityAttributes]);
+
   return (
     <div
       style={{
         backgroundColor: colors.white,
         borderStyle: "solid",
-        borderWidth: 0.7,
-        borderColor: colors.grey400,
-        borderRadius: 1,
+        boxShadow: elevations.e400,
+        borderWidth: 1,
+        borderColor: colors.teal500,
+        borderRadius: 2,
         width: 160,
       }}
     >
+      <Handle
+        type="target"
+        position={Position.Left}
+        isConnectable={isConnectable}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        isConnectable={isConnectable}
+      />
       <div
         style={{
           padding: spacers.dp4,
           borderBottomStyle: "solid",
           borderBottomWidth: 0.7,
           borderBottomColor: colors.grey300,
+          backgroundColor: colors.teal100,
         }}
       >
+        <div
+          style={{
+            color: "gray",
+            fontSize: 5,
+          }}
+        >
+          Program ({startCase(programType)})
+        </div>
         <div
           style={{
             fontWeight: "bold",
@@ -44,161 +200,21 @@ const ProgramNode = () => {
             marginBottom: 2,
           }}
         >
-          Program name
-        </div>
-        <div
-          style={{
-            color: "gray",
-            fontSize: 8,
-          }}
-        >
-          Tracked entity type
+          {displayName}
         </div>
       </div>
 
-      <div
-        style={{
-          padding: spacers.dp4,
-          borderBottomStyle: "solid",
-          borderBottomWidth: 0.7,
-          borderBottomColor: colors.grey300,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 8,
-            fontWeight: "bold",
-            marginBottom: spacers.dp4,
-          }}
-        >
-          Attributes
-        </div>
-        <ul>
-          <li
-            style={{
-              borderStyle: "solid",
-              borderColor: colors.teal200,
-              borderWidth: 0.5,
-              borderRadius: 1,
-              padding: 4,
-              fontSize: 6,
-              marginBottom: 2,
-            }}
-          >
-            Name
-          </li>
-          <li
-            style={{
-              borderStyle: "solid",
-              borderColor: colors.teal200,
-              borderWidth: 0.5,
-              borderRadius: 1,
-              padding: 4,
-              fontSize: 6,
-              marginBottom: 2,
-            }}
-          >
-            Sex
-          </li>
-          <li
-            style={{
-              borderStyle: "solid",
-              borderColor: colors.teal200,
-              borderWidth: 0.5,
-              borderRadius: 1,
-              padding: 4,
-              fontSize: 6,
-              marginBottom: 2,
-            }}
-          >
-            Date of birth
-          </li>
-        </ul>
-      </div>
+      {attributes.length > 0 && (
+        <ProgramAttributeNode attributes={attributes} />
+      )}
 
-      <div style={{ padding: spacers.dp4 }}>
-        <div
-          style={{
-            fontSize: 8,
-            fontWeight: "bold",
-            marginTop: spacers.dp4,
-            marginBottom: spacers.dp8,
-          }}
-        >
-          Stages
-        </div>
-        <div style={{}}>
-          <div
-            style={{
-              fontSize: 7,
-              fontWeight: 500,
-              marginBottom: spacers.dp4,
-            }}
-          >
-            Medication (Repeatable)
-          </div>
-          <ul>
-            <li
-              style={{
-                borderStyle: "solid",
-                borderColor: colors.teal200,
-                borderWidth: 0.5,
-                borderRadius: 1,
-                padding: 4,
-                fontSize: 6,
-                marginBottom: 2,
-              }}
-            >
-              Date of medication
-            </li>
-            <li
-              style={{
-                borderStyle: "solid",
-                borderColor: colors.teal200,
-                borderWidth: 0.5,
-                borderRadius: 1,
-                padding: 4,
-                fontSize: 6,
-                marginBottom: 2,
-              }}
-            >
-              Type of medication
-            </li>
-            <li
-              style={{
-                borderStyle: "solid",
-                borderColor: colors.teal200,
-                borderWidth: 0.5,
-                borderRadius: 1,
-                padding: 4,
-                fontSize: 6,
-                marginBottom: 2,
-              }}
-            >
-              Dosage
-            </li>
-          </ul>
-        </div>
-      </div>
+      <ProgramStageNode
+        programType={programType}
+        programStages={programStages}
+      />
     </div>
   );
 };
-
-const initialNodes = [
-  {
-    id: "n1",
-    data: { label: "Node 1" },
-    position: { x: 0, y: 0 },
-    type: "programNode",
-  },
-  {
-    id: "n2",
-    data: { label: "Node 2" },
-    position: { x: 100, y: 100 },
-  },
-];
-
-const initialEdges = [];
 
 const programQuery: Query = {
   results: {
@@ -207,18 +223,19 @@ const programQuery: Query = {
     params: {
       fields: [
         "id",
+        "programType",
         "displayName",
         "trackedEntityType[*]",
-        "programStages[id,displayName,repeatable,programStageDataElements[dataElement[id,displayName]]]",
-        "programTrackedEntityAttributes[trackedEntityAttribute[id,displayName]]",
+        "programStages[id,displayName,shortName,repeatable,programStageDataElements[dataElement[id,code,displayName,shortName,valueType]]]",
+        "programTrackedEntityAttributes[trackedEntityAttribute[id,shortName,displayName,valueType]]",
       ],
     },
   },
 };
 
 export const ProgramDesign = (props: { programId: string }) => {
-  const [nodes, setNodes] = useState(initialNodes);
-  const [edges, setEdges] = useState(initialEdges);
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
 
   const { programId } = props;
 
@@ -230,9 +247,59 @@ export const ProgramDesign = (props: { programId: string }) => {
 
   useEffect(() => {
     if (!loading) {
-      refetch({ id: programId });
+      refetch({ programId });
     }
   }, [programId]);
+
+  useEffect(() => {
+    if (data?.results) {
+      const {
+        id,
+        displayName,
+        trackedEntityType,
+        programTrackedEntityAttributes,
+      } = data.results as any;
+
+      let nodes = [];
+      let edges = [];
+
+      if (trackedEntityType) {
+        // Set tracked entity type node
+        nodes = [
+          ...nodes,
+          {
+            id: trackedEntityType.id,
+            data: { label: trackedEntityType.displayName },
+            position: { x: 0, y: 0 },
+          },
+        ];
+
+        // Set edges from tracked entity type to program
+        edges = [
+          ...edges,
+          {
+            id: `${trackedEntityType.id}-${id}`,
+            source: trackedEntityType.id,
+            target: id,
+          },
+        ];
+      }
+
+      // Set program node
+      nodes = [
+        ...nodes,
+        {
+          id,
+          data: data.results,
+          position: { x: 100, y: 100 },
+          type: "programNode",
+        },
+      ];
+
+      setNodes(nodes);
+      setEdges(edges);
+    }
+  }, [data]);
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -256,20 +323,22 @@ export const ProgramDesign = (props: { programId: string }) => {
           </Center>
         </Layer>
       )}
-      <ReactFlow
-        nodes={nodes}
-        nodeTypes={{
-          programNode: ProgramNode,
-        }}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
+      <ReactFlowProvider>
+        <ReactFlow
+          nodes={nodes}
+          nodeTypes={{
+            programNode: ProgramNode,
+          }}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      </ReactFlowProvider>
     </>
   );
 };
