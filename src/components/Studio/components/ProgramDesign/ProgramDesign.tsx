@@ -90,7 +90,78 @@ const ProgramAttributeNode = (props: {
   );
 };
 
+const ProgramStageItemNode = (props: {
+  hideTitle?: boolean;
+  programStage: any;
+}) => {
+  const { hideTitle, programStage } = props;
+  const [isListOpened, setIsListOpened] = useState(hideTitle);
+  return (
+    <div
+      key={programStage.id}
+      style={{
+        borderTopStyle: "solid",
+        borderTopWidth: 0.7,
+        borderTopColor: colors.teal200,
+        cursor: "pointer",
+      }}
+      onClick={() => setIsListOpened(!isListOpened)}
+    >
+      {!hideTitle && (
+        <div
+          style={{
+            fontSize: 6,
+            fontWeight: 400,
+            padding: spacers.dp4,
+            backgroundColor: colors.teal100,
+            color: colors.teal900,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div>{programStage.displayName}</div>
+          {programStage.repeatable && (
+            <div
+              style={{
+                fontWeight: 400,
+                color: colors.grey600,
+                fontSize: 5,
+              }}
+            >
+              Repeatable
+            </div>
+          )}
+        </div>
+      )}
+      {isListOpened && (
+        <ul>
+          {(programStage.programStageDataElements || []).map(
+            (programStageDataElement) => {
+              return (
+                <li
+                  key={programStageDataElement.dataElement?.id}
+                  style={{
+                    borderTopStyle: "solid",
+                    borderTopColor: colors.green100,
+                    borderTopWidth: 0.6,
+                    padding: spacers.dp4,
+                    fontSize: 6,
+                  }}
+                >
+                  {programStageDataElement.dataElement?.displayName}
+                </li>
+              );
+            }
+          )}
+        </ul>
+      )}
+    </div>
+  );
+};
+
 const ProgramStageNode = ({ programType, programStages }) => {
+  const [isListOpened, setIsListOpened] = useState(false);
   const isTrackerProgram = useMemo(() => {
     return programType === "WITH_REGISTRATION";
   }, [programType]);
@@ -110,54 +181,11 @@ const ProgramStageNode = ({ programType, programStages }) => {
       )}
       {programStages.map((programStage) => {
         return (
-          <div key={programStage.id} style={{}}>
-            {isTrackerProgram && (
-              <div
-                style={{
-                  fontSize: 6,
-                  fontWeight: 500,
-                  padding: spacers.dp4,
-                  backgroundColor: colors.teal100,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>{programStage.displayName}</div>
-                {programStage.repeatable && (
-                  <div
-                    style={{
-                      fontWeight: 400,
-                      color: colors.grey600,
-                      fontSize: 5,
-                    }}
-                  >
-                    Repeatable
-                  </div>
-                )}
-              </div>
-            )}
-            <ul>
-              {(programStage.programStageDataElements || []).map(
-                (programStageDataElement) => {
-                  return (
-                    <li
-                      key={programStageDataElement.dataElement?.id}
-                      style={{
-                        borderTopStyle: "solid",
-                        borderTopColor: colors.green100,
-                        borderTopWidth: 0.6,
-                        padding: spacers.dp4,
-                        fontSize: 6,
-                      }}
-                    >
-                      {programStageDataElement.dataElement?.displayName}
-                    </li>
-                  );
-                }
-              )}
-            </ul>
-          </div>
+          <ProgramStageItemNode
+            key={programStage.id}
+            hideTitle={!isTrackerProgram}
+            programStage={programStage}
+          />
         );
       })}
     </div>
