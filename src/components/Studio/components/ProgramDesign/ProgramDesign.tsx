@@ -20,9 +20,11 @@ import {
   elevations,
   Menu,
   MenuItem,
+  IconInfo16,
 } from "@dhis2/ui";
 import { Query, useDataQuery } from "@dhis2/app-service-data";
 import { startCase } from "lodash";
+import "./ProgramDesign.css";
 
 const ProgramAttributeNode = (props: {
   hideTitle?: boolean;
@@ -46,7 +48,24 @@ const ProgramAttributeNode = (props: {
             color: colors.grey800,
           }}
         >
-          Attributes
+          <div>Attributes</div>
+          <div
+            style={{
+              fontSize: 6,
+              fontStyle: "italic",
+              color: colors.grey600,
+              marginTop: spacers.dp4,
+              display: "flex",
+              alignItems: "center",
+              gap: spacers.dp4,
+            }}
+          >
+            <IconInfo16 />
+            <span>
+              Inherited attributes are hidden and can be viewed under tracked
+              entity type node
+            </span>
+          </div>
         </div>
       )}
       <ul>
@@ -150,14 +169,8 @@ const TrackedEntityTypeNode = ({ data, isConnectable }) => {
 
   const attributes = useMemo(() => {
     return (trackedEntityTypeAttributes || []).map(
-      (trackedEntityTypeAttribute) => {
-        return {
-          ...trackedEntityTypeAttribute,
-          displayName: trackedEntityTypeAttribute.displayName
-            ?.replace(displayName, "")
-            ?.trim(),
-        };
-      }
+      (trackedEntityTypeAttribute) =>
+        trackedEntityTypeAttribute.trackedEntityAttribute
     );
   }, [trackedEntityTypeAttributes]);
 
@@ -224,6 +237,7 @@ const ProgramNode = ({ data, isConnectable }) => {
     programType,
     programTrackedEntityAttributes,
     programStages,
+    trackedEntityType,
   } = data;
 
   const isTrackerProgram = useMemo(() => {
@@ -231,10 +245,20 @@ const ProgramNode = ({ data, isConnectable }) => {
   }, [programType]);
 
   const attributes = useMemo(() => {
-    return (programTrackedEntityAttributes || []).map(
-      (programTrackedEntityAttribute) =>
-        programTrackedEntityAttribute.trackedEntityAttribute
-    );
+    return (programTrackedEntityAttributes || [])
+      .map((programTrackedEntityAttribute) => {
+        if (
+          trackedEntityType.trackedEntityTypeAttributes?.some(
+            (trackedEntityTypeAttribute) =>
+              trackedEntityTypeAttribute?.trackedEntityAttribute?.id ===
+              programTrackedEntityAttribute?.trackedEntityAttribute?.id
+          )
+        ) {
+          return null;
+        }
+        return programTrackedEntityAttribute.trackedEntityAttribute;
+      })
+      .filter((attribute) => attribute !== null);
   }, [programTrackedEntityAttributes]);
 
   return (
@@ -308,7 +332,7 @@ const programQuery: Query = {
         "id",
         "programType",
         "displayName",
-        "trackedEntityType[*]",
+        "trackedEntityType[*,trackedEntityTypeAttributes[trackedEntityAttribute[id,displayName,shortName,valueType]]]",
         "programStages[id,displayName,shortName,repeatable,programStageDataElements[dataElement[id,code,displayName,shortName,valueType]]]",
         "programTrackedEntityAttributes[trackedEntityAttribute[id,shortName,displayName,valueType]]",
       ],
