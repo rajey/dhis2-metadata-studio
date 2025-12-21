@@ -24,7 +24,11 @@ import {
 import { Query, useDataQuery } from "@dhis2/app-service-data";
 import { startCase } from "lodash";
 
-const ProgramAttributeNode = ({ attributes }) => {
+const ProgramAttributeNode = (props: {
+  hideTitle?: boolean;
+  attributes: any[];
+}) => {
+  const { hideTitle, attributes } = props;
   return (
     <div
       style={{
@@ -33,16 +37,18 @@ const ProgramAttributeNode = ({ attributes }) => {
         borderBottomColor: colors.grey300,
       }}
     >
-      <div
-        style={{
-          fontSize: 6,
-          padding: spacers.dp4,
-          backgroundColor: colors.grey200,
-          color: colors.grey800,
-        }}
-      >
-        Attributes
-      </div>
+      {!hideTitle && (
+        <div
+          style={{
+            fontSize: 6,
+            padding: spacers.dp4,
+            backgroundColor: colors.grey200,
+            color: colors.grey800,
+          }}
+        >
+          Attributes
+        </div>
+      )}
       <ul>
         {attributes.map((attribute) => {
           return (
@@ -139,6 +145,79 @@ const ProgramStageNode = ({ programType, programStages }) => {
   );
 };
 
+const TrackedEntityTypeNode = ({ data, isConnectable }) => {
+  const { displayName, trackedEntityTypeAttributes } = data;
+
+  const attributes = useMemo(() => {
+    return (trackedEntityTypeAttributes || []).map(
+      (trackedEntityTypeAttribute) => {
+        return {
+          ...trackedEntityTypeAttribute,
+          displayName: trackedEntityTypeAttribute.displayName
+            ?.replace(displayName, "")
+            ?.trim(),
+        };
+      }
+    );
+  }, [trackedEntityTypeAttributes]);
+
+  return (
+    <div
+      style={{
+        backgroundColor: colors.white,
+        borderStyle: "solid",
+        boxShadow: elevations.e400,
+        borderWidth: 1,
+        borderColor: colors.yellow300,
+        borderRadius: 2,
+        width: 160,
+      }}
+    >
+      <Handle
+        type="target"
+        position={Position.Left}
+        isConnectable={isConnectable}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        isConnectable={isConnectable}
+      />
+      <div
+        style={{
+          padding: spacers.dp4,
+          borderBottomStyle: "solid",
+          borderBottomWidth: 0.7,
+          borderBottomColor: colors.grey300,
+          backgroundColor: colors.yellow100,
+        }}
+      >
+        <div
+          style={{
+            color: "gray",
+            fontSize: 5,
+          }}
+        >
+          Tracked entity type
+        </div>
+        <div
+          style={{
+            fontWeight: "bold",
+            fontSize: 10,
+            marginBottom: 2,
+          }}
+        >
+          {displayName}
+        </div>
+      </div>
+
+      {attributes.length > 0 && (
+        <ProgramAttributeNode hideTitle attributes={attributes} />
+      )}
+    </div>
+  );
+};
+
 const ProgramNode = ({ data, isConnectable }) => {
   const {
     displayName,
@@ -146,6 +225,10 @@ const ProgramNode = ({ data, isConnectable }) => {
     programTrackedEntityAttributes,
     programStages,
   } = data;
+
+  const isTrackerProgram = useMemo(() => {
+    return programType === "WITH_REGISTRATION";
+  }, [programType]);
 
   const attributes = useMemo(() => {
     return (programTrackedEntityAttributes || []).map(
@@ -191,7 +274,7 @@ const ProgramNode = ({ data, isConnectable }) => {
             fontSize: 5,
           }}
         >
-          Program ({startCase(programType)})
+          {isTrackerProgram ? "Tracker Program" : "Event Program"}
         </div>
         <div
           style={{
@@ -269,8 +352,9 @@ export const ProgramDesign = (props: { programId: string }) => {
           ...nodes,
           {
             id: trackedEntityType.id,
-            data: { label: trackedEntityType.displayName },
+            data: trackedEntityType,
             position: { x: 0, y: 0 },
+            type: "trackedEntityTypeNode",
           },
         ];
 
@@ -291,7 +375,7 @@ export const ProgramDesign = (props: { programId: string }) => {
         {
           id,
           data: data.results,
-          position: { x: 100, y: 100 },
+          position: { x: 150, y: 100 },
           type: "programNode",
         },
       ];
@@ -328,6 +412,7 @@ export const ProgramDesign = (props: { programId: string }) => {
           nodes={nodes}
           nodeTypes={{
             programNode: ProgramNode,
+            trackedEntityTypeNode: TrackedEntityTypeNode,
           }}
           edges={edges}
           onNodesChange={onNodesChange}
