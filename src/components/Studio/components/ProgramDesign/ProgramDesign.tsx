@@ -26,6 +26,82 @@ import { Query, useDataQuery } from "@dhis2/app-service-data";
 import { startCase } from "lodash";
 import "./ProgramDesign.css";
 
+const FieldItemNode = (props: { field: any }) => {
+  const { field } = props;
+
+  const fieldIcon = useMemo(() => {
+    if (field.unique) {
+      return "./icons/unique-field.svg";
+    }
+
+    if (field.optionSetValue) {
+      return "./icons/drop-down-field.svg";
+    }
+
+    switch (field.valueType) {
+      case "TEXT":
+      case "LONG_TEXT":
+      case "LETTER":
+        return "./icons/text-field.svg";
+      case "INTEGER":
+      case "NUMBER":
+      case "INTEGER_POSITIVE":
+      case "INTEGER_ZERO_OR_POSITIVE":
+        return "./icons/number-field.svg";
+      case "INTEGER_NEGATIVE":
+        return "./icons/integer-negative-field.svg";
+      case "PERCENTAGE":
+        return "./icons/percent-field.svg";
+      case "UNIT_INTERVAL":
+      case "TRACKER_ASSOCIATE":
+        return "./icons/number-field.svg";
+      case "DATE":
+        return "./icons/date-field.svg";
+      case "DATETIME":
+        return "./icons/date-time-field.svg";
+      case "TIME":
+        return "./icons/time-field.svg";
+      case "BOOLEAN":
+        return "/icons/boolean-field.svg";
+      case "COORDINATE":
+        return "./icons/coordinate-field.svg";
+      case "FILE_RESOURCE":
+        return "./icons/file-resource-field.svg";
+      case "IMAGE":
+        return "./icons/image-field.svg";
+      case "URL":
+        return "./icons/url-field.svg";
+      default:
+        return "./icons/text-field.svg";
+    }
+  }, [field]);
+
+  return (
+    <div
+      style={{
+        borderTopStyle: "solid",
+        borderTopColor: colors.green100,
+        borderTopWidth: 0.6,
+        padding: spacers.dp4,
+        fontSize: 6,
+        display: "flex",
+        alignItems: "center",
+        gap: spacers.dp4,
+        color: colors.grey900,
+      }}
+    >
+      <img
+        alt="icon"
+        src={fieldIcon}
+        style={{
+          height: 6,
+        }}
+      />
+      <div>{field.displayName}</div>
+    </div>
+  );
+};
+
 const ProgramAttributeNode = (props: {
   hideTitle?: boolean;
   attributes: any[];
@@ -68,24 +144,11 @@ const ProgramAttributeNode = (props: {
           </div>
         </div>
       )}
-      <ul>
+      <div>
         {attributes.map((attribute) => {
-          return (
-            <li
-              key={attribute.id}
-              style={{
-                borderTopStyle: "solid",
-                borderTopColor: colors.green100,
-                borderTopWidth: 0.6,
-                padding: spacers.dp4,
-                fontSize: 6,
-              }}
-            >
-              {attribute.displayName}
-            </li>
-          );
+          return <FieldItemNode key={attribute.id} field={attribute} />;
         })}
-      </ul>
+      </div>
     </div>
   );
 };
@@ -105,7 +168,6 @@ const ProgramStageItemNode = (props: {
         borderTopColor: colors.teal200,
         cursor: "pointer",
       }}
-      onClick={() => setIsListOpened(!isListOpened)}
     >
       {!hideTitle && (
         <div
@@ -119,49 +181,39 @@ const ProgramStageItemNode = (props: {
             alignItems: "center",
             justifyContent: "space-between",
           }}
+          onClick={() => setIsListOpened(!isListOpened)}
         >
           <div>{programStage.displayName}</div>
           {programStage.repeatable && (
-            <div
+            <img
               style={{
-                fontWeight: 400,
-                color: colors.grey600,
-                fontSize: 5,
+                height: 6,
               }}
-            >
-              Repeatable
-            </div>
+              src="./icons/repeatable.svg"
+              alt="Repeatable"
+            />
           )}
         </div>
       )}
       {isListOpened && (
-        <ul>
+        <div>
           {(programStage.programStageDataElements || []).map(
             (programStageDataElement) => {
               return (
-                <li
+                <FieldItemNode
                   key={programStageDataElement.dataElement?.id}
-                  style={{
-                    borderTopStyle: "solid",
-                    borderTopColor: colors.green100,
-                    borderTopWidth: 0.6,
-                    padding: spacers.dp4,
-                    fontSize: 6,
-                  }}
-                >
-                  {programStageDataElement.dataElement?.displayName}
-                </li>
+                  field={programStageDataElement.dataElement}
+                />
               );
             }
           )}
-        </ul>
+        </div>
       )}
     </div>
   );
 };
 
 const ProgramStageNode = ({ programType, programStages }) => {
-  const [isListOpened, setIsListOpened] = useState(false);
   const isTrackerProgram = useMemo(() => {
     return programType === "WITH_REGISTRATION";
   }, [programType]);
@@ -361,8 +413,8 @@ const programQuery: Query = {
         "programType",
         "displayName",
         "trackedEntityType[*,trackedEntityTypeAttributes[trackedEntityAttribute[id,displayName,shortName,valueType]]]",
-        "programStages[id,displayName,shortName,repeatable,programStageDataElements[dataElement[id,code,displayName,shortName,valueType]]]",
-        "programTrackedEntityAttributes[trackedEntityAttribute[id,shortName,displayName,valueType]]",
+        "programStages[id,displayName,shortName,repeatable,programStageDataElements[dataElement[id,code,displayName,shortName,valueType,optionSetValue]]]",
+        "programTrackedEntityAttributes[trackedEntityAttribute[id,shortName,displayName,valueType,unique,optionSetValue]]",
       ],
     },
   },
@@ -427,7 +479,7 @@ export const ProgramDesign = (props: { programId: string }) => {
         {
           id,
           data: data.results,
-          position: { x: 150, y: 100 },
+          position: { x: 200, y: 50 },
           type: "programNode",
         },
       ];
