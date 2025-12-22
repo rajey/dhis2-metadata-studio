@@ -1,4 +1,4 @@
-import { colors, spacers } from "@dhis2/ui";
+import { colors, elevations, spacers } from "@dhis2/ui";
 import React, { useMemo, useState } from "react";
 import { MetaDataPanel } from "../MetaDataPanel";
 import { DataSetDesign, ProgramDesign } from "./components";
@@ -14,9 +14,11 @@ export const Studio = () => {
           style={{
             display: "flex",
             color: colors.grey600,
+            backgroundColor: colors.teal100,
             height: "calc(100vh - 50px)",
             alignItems: "center",
             justifyContent: "center",
+            fontSize: 14,
           }}
         >
           Select a program or data set from the left panel to start designing.
@@ -35,12 +37,13 @@ export const Studio = () => {
   }, [selectedMetaData]);
 
   return (
-    <div className="studio-container">
+    <div>
       <div
+        className="fixed left-0 top-12 w-72 h-100 bg-white"
         style={{
-          width: 400,
-          backgroundColor: colors.white,
-          borderRight: "1px solid #ddd",
+          borderRightStyle: "solid",
+          borderRightWidth: 0.7,
+          borderRightColor: colors.grey500,
         }}
       >
         <MetaDataPanel
@@ -50,6 +53,18 @@ export const Studio = () => {
         />
       </div>
       <div className="studio-design-area">{designArea}</div>
+      <div
+        className="fixed right-0 bottom-0 top-12 w-60"
+        style={{
+          boxShadow: elevations.e100,
+          backgroundColor: colors.white,
+          borderLeftStyle: "solid",
+          borderLeftWidth: 0.7,
+          borderLeftColor: colors.grey500,
+        }}
+      >
+        Toolbar area
+      </div>
     </div>
   );
 };

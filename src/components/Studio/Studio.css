@@ -3,12 +3,13 @@
 }
 
 .studio-design-area {
-  flex-grow: 1;
   height: calc(100vh - 50px);
+  width: calc(100vw - 288px);
+  margin-left: 288px;
 }
 
 .studio-sidebar {
-  width: 320px;
+  width: 240px;
   background-color: #fff;
   border-left: 1px solid #ddd;
 }

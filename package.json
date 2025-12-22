@@ -16,7 +16,8 @@
     "@xyflow/react": "^12.10.0",
     "lodash": "^4.17.21",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@dhis2/cli-app-scripts": "^12.8.0-alpha.3",
@@ -26,7 +27,9 @@
     "@types/lodash": "^4.17.21",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "tailwindcss": "^4.1.17",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3"
   }
 }
