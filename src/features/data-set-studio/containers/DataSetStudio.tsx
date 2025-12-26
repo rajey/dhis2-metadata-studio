@@ -1,5 +1,5 @@
 import React from "react";
 
-export const DataSetDesign = () => {
+export const DataSetStudio = () => {
   return <div>DataSet Design Component</div>;
 };

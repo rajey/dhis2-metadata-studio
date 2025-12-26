@@ -10,9 +10,7 @@ import {
   ReactFlowProvider,
 } from "@xyflow/react";
 import React, { useCallback, useEffect, useState } from "react";
-import "./ProgramDesign.css";
-import { ProgramNode } from "./ProgramNode";
-import { TrackedEntityTypeNode } from "./TrackedEntityTypeNode";
+import { ProgramNode, TrackedEntityTypeNode } from "../components";
 
 const programQuery: Query = {
   results: {
@@ -31,7 +29,7 @@ const programQuery: Query = {
   },
 };
 
-export const ProgramDesign = (props: { programId: string }) => {
+export const ProgramStudio = (props: { programId: string }) => {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
 

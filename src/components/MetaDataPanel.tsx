@@ -1,4 +1,5 @@
 import {
+  colors,
   DropdownButton,
   FlyoutMenu,
   IconAdd24,
@@ -8,8 +9,7 @@ import {
   spacers,
 } from "@dhis2/ui";
 import React from "react";
-import { MetaDataGroup } from "./components";
-import "./MetaDataPanel.css";
+import { MetaDataGroup } from "./MetaDataGroup";
 
 const programQuery = {
   results: {
@@ -36,7 +36,14 @@ export const MetaDataPanel = (props: {
 }) => {
   const { onSelect } = props;
   return (
-    <>
+    <div
+      className="fixed left-0 top-12 w-72 h-100 bg-white"
+      style={{
+        borderRightStyle: "solid",
+        borderRightWidth: 0.7,
+        borderRightColor: colors.grey500,
+      }}
+    >
       <div
         style={{
           padding: spacers.dp16,
@@ -85,6 +92,6 @@ export const MetaDataPanel = (props: {
           />
         </Menu>
       </div>
-    </>
+    </div>
   );
 };

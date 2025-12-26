@@ -1,13 +1,37 @@
-import { useDataQuery } from "@dhis2/app-runtime";
-import i18n from "@dhis2/d2-i18n";
-import React, { FC } from "react";
-import "./App.module.css";
-import "./styles/tailwind.css";
 import "@xyflow/react/dist/style.css";
-import { Studio } from "./components";
+import React, { FC, useMemo, useState } from "react";
+import "./App.css";
+import { MetaDataPanel, StudioPlaceholder, ToolBar } from "./components";
+import { DataSetStudio, ProgramStudio } from "./features";
 
-const MyApp: FC = () => {
-  return <Studio />;
+const MetadataStudioApp: FC = () => {
+  const [selectedMetaData, setSelectedMetaData] = useState<any>();
+
+  const designArea = useMemo(() => {
+    if (!selectedMetaData) {
+      return <StudioPlaceholder />;
+    }
+    switch (selectedMetaData.resource) {
+      case "programs":
+        return <ProgramStudio programId={selectedMetaData.id} />;
+      case "dataSets":
+        return <DataSetStudio />;
+      default:
+        return <></>;
+    }
+  }, [selectedMetaData]);
+
+  return (
+    <>
+      <MetaDataPanel
+        onSelect={(selectedMetaData: any) => {
+          setSelectedMetaData(selectedMetaData);
+        }}
+      />
+      <div className="studio-design-area">{designArea}</div>
+      <ToolBar />
+    </>
+  );
 };
 
-export default MyApp;
+export default MetadataStudioApp;
