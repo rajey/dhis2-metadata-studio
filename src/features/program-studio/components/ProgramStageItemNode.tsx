@@ -1,5 +1,6 @@
 import { colors, spacers, Tooltip } from "@dhis2/ui";
 import React, { BaseSyntheticEvent, useState } from "react";
+import { iconUrl } from "../../../utils/asset";
 import { FieldItemNode } from "./FieldItemNode";
 
 export const ProgramStageItemNode = (props: {
@@ -40,7 +41,7 @@ export const ProgramStageItemNode = (props: {
                   style={{
                     height: 6,
                   }}
-                  src="./icons/repeatable.svg"
+                  src={iconUrl("repeatable.svg")}
                   alt="Repeatable"
                 />
               </Tooltip>
@@ -56,7 +57,7 @@ export const ProgramStageItemNode = (props: {
                   console.log(event);
                 }}
               >
-                <img className="h-[8px]" src="./icons/edit.svg" alt="Edit" />
+                <img className="h-[8px]" src={iconUrl("edit.svg")} alt="Edit" />
               </button>
             </Tooltip>
           </div>
@@ -85,7 +86,7 @@ export const ProgramStageItemNode = (props: {
                   console.log(event);
                 }}
               >
-                <img className="h-[10px]" src="./icons/add.svg" alt="Add" />
+                <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
               </button>
             </Tooltip>
           </div>

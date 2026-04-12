@@ -1,53 +1,54 @@
 import { colors, spacers, Tooltip } from "@dhis2/ui";
 import React, { BaseSyntheticEvent, useMemo } from "react";
+import { iconUrl } from "../../../utils/asset";
 
 export const FieldItemNode = (props: { field: any }) => {
   const { field } = props;
 
   const fieldIcon = useMemo(() => {
     if (field.unique) {
-      return "./icons/unique-field.svg";
+      return iconUrl("unique-field.svg");
     }
 
     if (field.optionSetValue) {
-      return "./icons/drop-down-field.svg";
+      return iconUrl("drop-down-field.svg");
     }
 
     switch (field.valueType) {
       case "TEXT":
       case "LONG_TEXT":
       case "LETTER":
-        return "./icons/text-field.svg";
+        return iconUrl("text-field.svg");
       case "INTEGER":
       case "NUMBER":
       case "INTEGER_POSITIVE":
       case "INTEGER_ZERO_OR_POSITIVE":
-        return "./icons/number-field.svg";
+        return iconUrl("number-field.svg");
       case "INTEGER_NEGATIVE":
-        return "./icons/integer-negative-field.svg";
+        return iconUrl("integer-negative-field.svg");
       case "PERCENTAGE":
-        return "./icons/percent-field.svg";
+        return iconUrl("percent-field.svg");
       case "UNIT_INTERVAL":
       case "TRACKER_ASSOCIATE":
-        return "./icons/number-field.svg";
+        return iconUrl("number-field.svg");
       case "DATE":
-        return "./icons/date-field.svg";
+        return iconUrl("date-field.svg");
       case "DATETIME":
-        return "./icons/date-time-field.svg";
+        return iconUrl("date-time-field.svg");
       case "TIME":
-        return "./icons/time-field.svg";
+        return iconUrl("time-field.svg");
       case "BOOLEAN":
-        return "/icons/boolean-field.svg";
+        return iconUrl("boolean-field.svg");
       case "COORDINATE":
-        return "./icons/coordinate-field.svg";
+        return iconUrl("coordinate-field.svg");
       case "FILE_RESOURCE":
-        return "./icons/file-resource-field.svg";
+        return iconUrl("file-resource-field.svg");
       case "IMAGE":
-        return "./icons/image-field.svg";
+        return iconUrl("image-field.svg");
       case "URL":
-        return "./icons/url-field.svg";
+        return iconUrl("url-field.svg");
       default:
-        return "./icons/text-field.svg";
+        return iconUrl("text-field.svg");
     }
   }, [field]);
 
@@ -85,7 +86,7 @@ export const FieldItemNode = (props: { field: any }) => {
             console.log(event);
           }}
         >
-          <img className="h-[6px]" src="./icons/edit.svg" alt="Edit" />
+          <img className="h-[6px]" src={iconUrl("edit.svg")} alt="Edit" />
         </button>
       </Tooltip>
     </div>

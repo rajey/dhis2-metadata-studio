@@ -62,7 +62,7 @@ export const MetaDataPanel = (props: {
           name="buttonName"
           value="buttonValue"
         >
-          Create metadata
+          Create new
         </DropdownButton>
         <div style={{ marginTop: spacers.dp16 }}>
           <Input onChange={() => {}} placeholder="Search" />

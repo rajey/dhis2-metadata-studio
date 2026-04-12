@@ -1,6 +1,7 @@
 import { colors, elevations, spacers, Tooltip } from "@dhis2/ui";
 import { Handle, Position } from "@xyflow/react";
 import React, { BaseSyntheticEvent, useMemo } from "react";
+import { iconUrl } from "../../../utils/asset";
 import { ProgramAttributeNode } from "./ProgramAttributeNode";
 import { ProgramStageNode } from "./ProgramStageNode";
 
@@ -90,7 +91,7 @@ export const ProgramNode = ({ data, isConnectable }) => {
                 console.log(event);
               }}
             >
-              <img className="h-[8px]" src="./icons/edit.svg" alt="Edit" />
+              <img className="h-[8px]" src={iconUrl("edit.svg")} alt="Edit" />
             </button>
           </Tooltip>
         </div>

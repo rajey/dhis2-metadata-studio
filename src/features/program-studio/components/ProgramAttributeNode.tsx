@@ -7,6 +7,7 @@ import {
   Tooltip,
 } from "@dhis2/ui";
 import React, { BaseSyntheticEvent } from "react";
+import { iconUrl } from "../../../utils/asset";
 import { FieldItemNode } from "./FieldItemNode";
 
 export const ProgramAttributeNode = (props: {
@@ -43,7 +44,7 @@ export const ProgramAttributeNode = (props: {
                 console.log(event);
               }}
             >
-              <img className="h-[10px]" src="./icons/add.svg" alt="Add" />
+              <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
             </button>
           </Tooltip>
         </div>

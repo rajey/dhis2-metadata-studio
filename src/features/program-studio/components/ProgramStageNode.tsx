@@ -1,5 +1,6 @@
 import { colors, spacers, Tooltip } from "@dhis2/ui";
 import React, { BaseSyntheticEvent, useMemo } from "react";
+import { iconUrl } from "../../../utils/asset";
 import { ProgramStageItemNode } from "./ProgramStageItemNode";
 
 export const ProgramStageNode = ({ programType, programStages }) => {
@@ -30,7 +31,7 @@ export const ProgramStageNode = ({ programType, programStages }) => {
                 console.log(event);
               }}
             >
-              <img className="h-[10px]" src="./icons/add.svg" alt="Add" />
+              <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
             </button>
           </Tooltip>
         </div>
