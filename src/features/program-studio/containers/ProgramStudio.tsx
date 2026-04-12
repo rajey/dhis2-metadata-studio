@@ -37,21 +37,45 @@ const programQuery: Query = {
     params: {
       fields: [
         "id",
+        "name",
         "programType",
         "displayName",
-        "trackedEntityType[*,trackedEntityTypeAttributes[trackedEntityAttribute[id,displayName,shortName,valueType]]]",
-        "programStages[id,displayName,shortName,repeatable,programStageDataElements[dataElement[id,code,displayName,shortName,valueType,optionSetValue]]]",
-        "programTrackedEntityAttributes[trackedEntityAttribute[id,shortName,displayName,valueType,unique,optionSetValue]]",
+        "shortName",
+        "description",
+        "displayIncidentDate",
+        "enrollmentDateLabel",
+        "incidentDateLabel",
+        "onlyEnrollOnce",
+        "selectEnrollmentDatesInFuture",
+        "selectIncidentDatesInFuture",
+        "useFirstStageDuringRegistration",
+        "trackedEntityType[*,trackedEntityTypeAttributes[id,mandatory,sortOrder,trackedEntityAttribute[id,name,displayName,description,shortName,code,valueType,unique,optionSetValue]]]",
+        "programStages[id,name,displayName,description,shortName,repeatable,programStageDataElements[id,compulsory,sortOrder,dataElement[id,name,code,displayName,description,shortName,valueType,optionSetValue]]]",
+        "programTrackedEntityAttributes[id,mandatory,searchable,sortOrder,trackedEntityAttribute[id,name,displayName,description,shortName,code,valueType,unique,optionSetValue]]",
       ],
     },
   },
 };
 
-export const ProgramStudio = (props: { programId: string }) => {
+export const ProgramStudio = (props: {
+  onEditProgram?: (program: any) => void;
+  onEditProgramAttribute?: (programAttribute: any) => void;
+  onEditProgramStageDataElement?: (programStageDataElement: any) => void;
+  onEditProgramStage?: (programStage: any) => void;
+  programId: string;
+  refreshToken?: number;
+}) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
 
-  const { programId } = props;
+  const {
+    onEditProgram,
+    onEditProgramAttribute,
+    onEditProgramStageDataElement,
+    onEditProgramStage,
+    programId,
+    refreshToken,
+  } = props;
 
   const { loading, data, error, refetch } = useDataQuery(programQuery, {
     variables: {
@@ -74,7 +98,11 @@ export const ProgramStudio = (props: { programId: string }) => {
     if (program.trackedEntityType) {
       nextNodes.push({
         id: program.trackedEntityType.id,
-        data: program.trackedEntityType,
+        data: {
+          ...program.trackedEntityType,
+          onEditProgramAttribute,
+          programId: program.id,
+        },
         position: { x: 0, y: programY },
         type: "trackedEntityTypeNode",
       });
@@ -91,7 +119,11 @@ export const ProgramStudio = (props: { programId: string }) => {
     if (showProgramNode) {
       nextNodes.push({
         id: program.id,
-        data: program,
+        data: {
+          ...program,
+          onEditProgram,
+          onEditProgramAttribute,
+        },
         position: { x: PROGRAM_NODE_X, y: programY },
         type: "programNode",
       });
@@ -104,6 +136,10 @@ export const ProgramStudio = (props: { programId: string }) => {
         id: stageNodeId,
         data: {
           ...programStage,
+          onEditProgram,
+          onEditProgramStageDataElement,
+          onEditProgramStage,
+          program,
           programDisplayName: program.displayName,
           programType: program.programType,
         },
@@ -159,7 +195,7 @@ export const ProgramStudio = (props: { programId: string }) => {
     if (!loading) {
       refetch({ programId });
     }
-  }, [loading, programId, refetch]);
+  }, [loading, programId, refetch, refreshToken]);
 
   useEffect(() => {
     if (data?.results) {

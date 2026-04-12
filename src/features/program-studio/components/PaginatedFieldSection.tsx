@@ -17,9 +17,11 @@ export const PaginatedFieldSection = (props: {
   description?: ReactNode;
   emptyMessage: string;
   fields: any[];
+  onEditField?: (field: any) => void;
   pageSize?: number;
   resetKey?: string;
   searchPlaceholder: string;
+  showAddAction?: boolean;
   title: string;
 }) => {
   const {
@@ -28,9 +30,11 @@ export const PaginatedFieldSection = (props: {
     description,
     emptyMessage,
     fields,
+    onEditField,
     pageSize = 5,
     resetKey,
     searchPlaceholder,
+    showAddAction = true,
     title,
   } = props;
   const [searchTerm, setSearchTerm] = useState("");
@@ -88,17 +92,19 @@ export const PaginatedFieldSection = (props: {
           >
             {title}
           </div>
-          <Tooltip content={addTooltip} placement="top">
-            <button
-              className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
-              onClick={(event: BaseSyntheticEvent) => {
-                event.stopPropagation();
-                console.log(title);
-              }}
-            >
-              <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
-            </button>
-          </Tooltip>
+          {showAddAction && (
+            <Tooltip content={addTooltip} placement="top">
+              <button
+                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                onClick={(event: BaseSyntheticEvent) => {
+                  event.stopPropagation();
+                  console.log(title);
+                }}
+              >
+                <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
+              </button>
+            </Tooltip>
+          )}
         </div>
         {description}
         <div
@@ -149,7 +155,13 @@ export const PaginatedFieldSection = (props: {
       {filteredFields.length > 0 ? (
         <div style={{ backgroundColor: colors.white }}>
           {paginatedFields.map((field) => {
-            return <FieldItemNode key={field?.id} field={field} />;
+            return (
+              <FieldItemNode
+                key={field?.id}
+                field={field}
+                onEdit={onEditField}
+              />
+            );
           })}
           {totalPages > 1 && (
             <div

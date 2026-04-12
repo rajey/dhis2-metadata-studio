@@ -1,7 +1,7 @@
 import { colors, spacers, Tooltip } from "@dhis2/ui";
 import React, { BaseSyntheticEvent, useMemo, useState } from "react";
 import { iconUrl } from "../../../utils/asset";
-import { PaginatedFieldSection } from "./PaginatedFieldSection";
+import { ProgramStageDataElementNode } from "./ProgramStageDataElementNode";
 
 export const ProgramStageItemNode = (props: {
   defaultExpanded?: boolean;
@@ -13,9 +13,17 @@ export const ProgramStageItemNode = (props: {
     defaultExpanded ?? hideTitle
   );
   const dataElements = useMemo(() => {
-    return (programStage.programStageDataElements || []).map(
-      (programStageDataElement) => programStageDataElement.dataElement
-    );
+    return (programStage.programStageDataElements || [])
+      .slice()
+      .sort((left, right) => (left.sortOrder || 0) - (right.sortOrder || 0))
+      .map((programStageDataElement) => ({
+        ...programStageDataElement.dataElement,
+        compulsory: programStageDataElement.compulsory ?? false,
+        programId: programStage.program?.id,
+        programStageDataElementId: programStageDataElement.id,
+        programStageId: programStage.id,
+        sortOrder: programStageDataElement.sortOrder ?? 1,
+      }));
   }, [programStage.programStageDataElements]);
 
   return (
@@ -73,14 +81,9 @@ export const ProgramStageItemNode = (props: {
         </div>
       )}
       {isListOpened && (
-        <PaginatedFieldSection
-          addTooltip="Add data element"
-          emptyMessage="No data elements assigned"
-          fields={dataElements}
-          pageSize={4}
-          resetKey={programStage.id}
-          searchPlaceholder="Search data elements"
-          title="Data elements"
+        <ProgramStageDataElementNode
+          dataElements={dataElements}
+          onEditDataElement={programStage.onEditProgramStageDataElement}
         />
       )}
     </div>

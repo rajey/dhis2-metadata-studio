@@ -4,14 +4,27 @@ import React, { useMemo } from "react";
 import { ProgramAttributeNode } from "./ProgramAttributeNode";
 
 export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
-  const { displayName, trackedEntityTypeAttributes } = data;
+  const {
+    displayName,
+    onEditProgramAttribute,
+    programId,
+    trackedEntityTypeAttributes,
+  } = data;
 
   const attributes = useMemo(() => {
-    return (trackedEntityTypeAttributes || []).map(
-      (trackedEntityTypeAttribute) =>
-        trackedEntityTypeAttribute.trackedEntityAttribute
-    );
-  }, [trackedEntityTypeAttributes]);
+    return (trackedEntityTypeAttributes || [])
+      .slice()
+      .sort((left, right) => (left.sortOrder || 0) - (right.sortOrder || 0))
+      .map((trackedEntityTypeAttribute, index) => ({
+        ...trackedEntityTypeAttribute.trackedEntityAttribute,
+        attributeContext: "trackedEntityType",
+        mandatory: trackedEntityTypeAttribute.mandatory ?? false,
+        programId,
+        sortOrder: trackedEntityTypeAttribute.sortOrder ?? index + 1,
+        trackedEntityTypeAttributeId: trackedEntityTypeAttribute.id,
+        trackedEntityTypeDisplayName: displayName,
+      }));
+  }, [displayName, programId, trackedEntityTypeAttributes]);
 
   return (
     <div
@@ -62,8 +75,13 @@ export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
           {displayName}
         </div>
       </div>
-
-      {<ProgramAttributeNode hideTitle attributes={attributes} />}
+      {attributes.length > 0 && (
+        <ProgramAttributeNode
+          hideTitle
+          attributes={attributes}
+          onEditAttribute={onEditProgramAttribute}
+        />
+      )}
     </div>
   );
 };

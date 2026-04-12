@@ -1,10 +1,18 @@
-import { colors, elevations, spacers } from "@dhis2/ui";
+import { colors, elevations, spacers, Tooltip } from "@dhis2/ui";
 import { Handle, Position } from "@xyflow/react";
-import React from "react";
+import React, { BaseSyntheticEvent } from "react";
+import { iconUrl } from "../../../utils/asset";
 import { ProgramStageItemNode } from "./ProgramStageItemNode";
 
 export const ProgramStageNode = ({ data, isConnectable }) => {
-  const { displayName, programDisplayName, programType } = data;
+  const {
+    displayName,
+    onEditProgram,
+    onEditProgramStage,
+    program,
+    programDisplayName,
+    programType,
+  } = data;
   const isEventProgramSummary =
     programType === "WITHOUT_REGISTRATION" && Boolean(programDisplayName);
   const headerBorderColor = isEventProgramSummary
@@ -54,15 +62,43 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
         >
           {isEventProgramSummary ? "Event program" : "Program stage"}
         </div>
-        <div
-          style={{
-            fontWeight: "bold",
-            fontSize: 10,
-            marginBottom: 2,
-            color: titleColor,
-          }}
-        >
-          {isEventProgramSummary ? programDisplayName : displayName}
+        <div className="flex items-center justify-between">
+          <div
+            style={{
+              fontWeight: "bold",
+              fontSize: 10,
+              marginBottom: 2,
+              color: titleColor,
+            }}
+          >
+            {isEventProgramSummary ? programDisplayName : displayName}
+          </div>
+          <div className="flex items-center gap-1">
+            {isEventProgramSummary && (
+              <Tooltip content={`Edit ${programDisplayName}`} placement="top">
+                <button
+                  className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                  onClick={(event: BaseSyntheticEvent) => {
+                    event.stopPropagation();
+                    onEditProgram?.(program);
+                  }}
+                >
+                  <img className="h-[8px]" src={iconUrl("edit.svg")} alt="Edit" />
+                </button>
+              </Tooltip>
+            )}
+            <Tooltip content={`Edit ${displayName}`} placement="top">
+              <button
+                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                onClick={(event: BaseSyntheticEvent) => {
+                  event.stopPropagation();
+                  onEditProgramStage?.(data);
+                }}
+              >
+                <img className="h-[8px]" src={iconUrl("edit.svg")} alt="Edit" />
+              </button>
+            </Tooltip>
+          </div>
         </div>
         {isEventProgramSummary && (
           <div

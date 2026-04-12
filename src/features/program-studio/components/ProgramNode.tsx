@@ -7,6 +7,8 @@ import { ProgramAttributeNode } from "./ProgramAttributeNode";
 export const ProgramNode = ({ data, isConnectable }) => {
   const {
     displayName,
+    onEditProgramAttribute,
+    onEditProgram,
     programType,
     programTrackedEntityAttributes,
     trackedEntityType,
@@ -18,6 +20,8 @@ export const ProgramNode = ({ data, isConnectable }) => {
 
   const attributes = useMemo(() => {
     return (programTrackedEntityAttributes || [])
+      .slice()
+      .sort((left, right) => (left.sortOrder || 0) - (right.sortOrder || 0))
       .map((programTrackedEntityAttribute) => {
         if (
           trackedEntityType?.trackedEntityTypeAttributes?.some(
@@ -28,10 +32,19 @@ export const ProgramNode = ({ data, isConnectable }) => {
         ) {
           return null;
         }
-        return programTrackedEntityAttribute.trackedEntityAttribute;
+        return {
+          ...programTrackedEntityAttribute.trackedEntityAttribute,
+          description: programTrackedEntityAttribute.trackedEntityAttribute
+            .description,
+          mandatory: programTrackedEntityAttribute.mandatory,
+          programId: data.id,
+          programTrackedEntityAttributeId: programTrackedEntityAttribute.id,
+          searchable: programTrackedEntityAttribute.searchable,
+          sortOrder: programTrackedEntityAttribute.sortOrder ?? 1,
+        };
       })
       .filter((attribute) => attribute !== null);
-  }, [programTrackedEntityAttributes]);
+  }, [data.id, programTrackedEntityAttributes, trackedEntityType]);
 
   return (
     <div
@@ -86,7 +99,7 @@ export const ProgramNode = ({ data, isConnectable }) => {
               className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
               onClick={(event: BaseSyntheticEvent) => {
                 event.stopPropagation();
-                console.log(event);
+                onEditProgram?.(data);
               }}
             >
               <img className="h-[8px]" src={iconUrl("edit.svg")} alt="Edit" />
@@ -96,7 +109,10 @@ export const ProgramNode = ({ data, isConnectable }) => {
       </div>
 
       {attributes.length > 0 && (
-        <ProgramAttributeNode attributes={attributes} />
+        <ProgramAttributeNode
+          attributes={attributes}
+          onEditAttribute={onEditProgramAttribute}
+        />
       )}
     </div>
   );

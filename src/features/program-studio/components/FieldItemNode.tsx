@@ -2,8 +2,11 @@ import { colors, spacers, Tooltip } from "@dhis2/ui";
 import React, { BaseSyntheticEvent, useMemo } from "react";
 import { iconUrl } from "../../../utils/asset";
 
-export const FieldItemNode = (props: { field: any }) => {
-  const { field } = props;
+export const FieldItemNode = (props: {
+  field: any;
+  onEdit?: (field: any) => void;
+}) => {
+  const { field, onEdit } = props;
 
   const fieldIcon = useMemo(() => {
     if (field.unique) {
@@ -78,17 +81,19 @@ export const FieldItemNode = (props: { field: any }) => {
         <div>{field.displayName}</div>
       </div>
 
-      <Tooltip content={`Edit ${field.displayName}`} placement="top">
-        <button
-          className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
-          onClick={(event: BaseSyntheticEvent) => {
-            event.stopPropagation();
-            console.log(event);
-          }}
-        >
-          <img className="h-[6px]" src={iconUrl("edit.svg")} alt="Edit" />
-        </button>
-      </Tooltip>
+      {onEdit && (
+        <Tooltip content={`Edit ${field.displayName}`} placement="top">
+          <button
+            className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+            onClick={(event: BaseSyntheticEvent) => {
+              event.stopPropagation();
+              onEdit(field);
+            }}
+          >
+            <img className="h-[6px]" src={iconUrl("edit.svg")} alt="Edit" />
+          </button>
+        </Tooltip>
+      )}
     </div>
   );
 };
