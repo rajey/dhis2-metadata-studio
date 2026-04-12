@@ -1,50 +1,62 @@
-import { colors, spacers, Tooltip } from "@dhis2/ui";
-import React, { BaseSyntheticEvent, useMemo } from "react";
-import { iconUrl } from "../../../utils/asset";
+import { colors, elevations, spacers } from "@dhis2/ui";
+import { Handle, Position } from "@xyflow/react";
+import React from "react";
 import { ProgramStageItemNode } from "./ProgramStageItemNode";
 
-export const ProgramStageNode = ({ programType, programStages }) => {
-  const isTrackerProgram = useMemo(() => {
-    return programType === "WITH_REGISTRATION";
-  }, [programType]);
+export const ProgramStageNode = ({ data, isConnectable }) => {
+  const { displayName } = data;
+
   return (
-    <div>
-      {isTrackerProgram && (
+    <div
+      style={{
+        backgroundColor: colors.white,
+        borderStyle: "solid",
+        boxShadow: elevations.e400,
+        borderWidth: 1,
+        borderColor: colors.blue300,
+        borderRadius: 2,
+        width: 160,
+      }}
+    >
+      <Handle
+        type="target"
+        position={Position.Left}
+        isConnectable={isConnectable}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        isConnectable={isConnectable}
+      />
+      <div
+        style={{
+          padding: spacers.dp4,
+          borderBottomStyle: "solid",
+          borderBottomWidth: 0.7,
+          borderBottomColor: colors.grey300,
+          backgroundColor: colors.blue100,
+        }}
+      >
         <div
-          className="flex items-center justify-between"
           style={{
-            paddingLeft: spacers.dp4,
-            paddingRight: spacers.dp4,
-            paddingTop: 2,
-            paddingBottom: 2,
-            backgroundColor: colors.grey200,
-            fontSize: 6,
-            color: colors.grey800,
+            color: "gray",
+            fontSize: 5,
           }}
         >
-          <div>Program stages</div>
-          <Tooltip content="Add program stage" placement="top">
-            <button
-              className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
-              onClick={(event: BaseSyntheticEvent) => {
-                event.stopPropagation();
-                console.log(event);
-              }}
-            >
-              <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
-            </button>
-          </Tooltip>
+          Program stage
         </div>
-      )}
-      {programStages.map((programStage) => {
-        return (
-          <ProgramStageItemNode
-            key={programStage.id}
-            hideTitle={!isTrackerProgram}
-            programStage={programStage}
-          />
-        );
-      })}
+        <div
+          style={{
+            fontWeight: "bold",
+            fontSize: 10,
+            marginBottom: 2,
+            color: colors.blue900,
+          }}
+        >
+          {displayName}
+        </div>
+      </div>
+      <ProgramStageItemNode hideTitle programStage={data} />
     </div>
   );
 };

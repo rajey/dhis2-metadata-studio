@@ -1,14 +1,23 @@
 import { colors, spacers, Tooltip } from "@dhis2/ui";
-import React, { BaseSyntheticEvent, useState } from "react";
+import React, { BaseSyntheticEvent, useMemo, useState } from "react";
 import { iconUrl } from "../../../utils/asset";
-import { FieldItemNode } from "./FieldItemNode";
+import { PaginatedFieldSection } from "./PaginatedFieldSection";
 
 export const ProgramStageItemNode = (props: {
+  defaultExpanded?: boolean;
   hideTitle?: boolean;
   programStage: any;
 }) => {
-  const { hideTitle, programStage } = props;
-  const [isListOpened, setIsListOpened] = useState(hideTitle);
+  const { defaultExpanded, hideTitle, programStage } = props;
+  const [isListOpened, setIsListOpened] = useState(
+    defaultExpanded ?? hideTitle
+  );
+  const dataElements = useMemo(() => {
+    return (programStage.programStageDataElements || []).map(
+      (programStageDataElement) => programStageDataElement.dataElement
+    );
+  }, [programStage.programStageDataElements]);
+
   return (
     <div
       key={programStage.id}
@@ -64,43 +73,15 @@ export const ProgramStageItemNode = (props: {
         </div>
       )}
       {isListOpened && (
-        <div>
-          <div
-            className="flex items-center justify-between"
-            style={{
-              paddingLeft: spacers.dp4,
-              paddingRight: spacers.dp4,
-              paddingTop: 2,
-              paddingBottom: 2,
-              backgroundColor: colors.grey200,
-              fontSize: 6,
-              color: colors.grey800,
-            }}
-          >
-            <div>Data elements</div>
-            <Tooltip content="Add data element" placement="top">
-              <button
-                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
-                onClick={(event: BaseSyntheticEvent) => {
-                  event.stopPropagation();
-                  console.log(event);
-                }}
-              >
-                <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
-              </button>
-            </Tooltip>
-          </div>
-          {(programStage.programStageDataElements || []).map(
-            (programStageDataElement) => {
-              return (
-                <FieldItemNode
-                  key={programStageDataElement.dataElement?.id}
-                  field={programStageDataElement.dataElement}
-                />
-              );
-            }
-          )}
-        </div>
+        <PaginatedFieldSection
+          addTooltip="Add data element"
+          emptyMessage="No data elements assigned"
+          fields={dataElements}
+          pageSize={4}
+          resetKey={programStage.id}
+          searchPlaceholder="Search data elements"
+          title="Data elements"
+        />
       )}
     </div>
   );

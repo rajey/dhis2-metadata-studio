@@ -3,14 +3,12 @@ import { Handle, Position } from "@xyflow/react";
 import React, { BaseSyntheticEvent, useMemo } from "react";
 import { iconUrl } from "../../../utils/asset";
 import { ProgramAttributeNode } from "./ProgramAttributeNode";
-import { ProgramStageNode } from "./ProgramStageNode";
 
 export const ProgramNode = ({ data, isConnectable }) => {
   const {
     displayName,
     programType,
     programTrackedEntityAttributes,
-    programStages,
     trackedEntityType,
   } = data;
 
@@ -22,7 +20,7 @@ export const ProgramNode = ({ data, isConnectable }) => {
     return (programTrackedEntityAttributes || [])
       .map((programTrackedEntityAttribute) => {
         if (
-          trackedEntityType.trackedEntityTypeAttributes?.some(
+          trackedEntityType?.trackedEntityTypeAttributes?.some(
             (trackedEntityTypeAttribute) =>
               trackedEntityTypeAttribute?.trackedEntityAttribute?.id ===
               programTrackedEntityAttribute?.trackedEntityAttribute?.id
@@ -100,11 +98,6 @@ export const ProgramNode = ({ data, isConnectable }) => {
       {attributes.length > 0 && (
         <ProgramAttributeNode attributes={attributes} />
       )}
-
-      <ProgramStageNode
-        programType={programType}
-        programStages={programStages}
-      />
     </div>
   );
 };
