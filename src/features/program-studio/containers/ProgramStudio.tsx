@@ -63,6 +63,9 @@ export const ProgramStudio = (props: { programId: string }) => {
     const nextNodes: Node[] = [];
     const nextEdges: Edge[] = [];
     const programStages = [...(program.programStages || [])];
+    const isTrackerProgram = program.programType === "WITH_REGISTRATION";
+    const showProgramNode = isTrackerProgram;
+    const stageNodeX = showProgramNode ? PROGRAM_STAGE_NODE_X : PROGRAM_NODE_X;
     const programY =
       programStages.length > 0
         ? ((programStages.length - 1) * PROGRAM_STAGE_VERTICAL_GAP) / 2
@@ -76,60 +79,78 @@ export const ProgramStudio = (props: { programId: string }) => {
         type: "trackedEntityTypeNode",
       });
 
-      nextEdges.push({
-        id: `${program.trackedEntityType.id}-${program.id}`,
-        source: program.trackedEntityType.id,
-        target: program.id,
-      });
+      if (showProgramNode) {
+        nextEdges.push({
+          id: `${program.trackedEntityType.id}-${program.id}`,
+          source: program.trackedEntityType.id,
+          target: program.id,
+        });
+      }
     }
 
-    nextNodes.push({
-      id: program.id,
-      data: program,
-      position: { x: PROGRAM_NODE_X, y: programY },
-      type: "programNode",
-    });
+    if (showProgramNode) {
+      nextNodes.push({
+        id: program.id,
+        data: program,
+        position: { x: PROGRAM_NODE_X, y: programY },
+        type: "programNode",
+      });
+    }
 
     programStages.forEach((programStage, index) => {
       const stageNodeId = `program-stage-${programStage.id}`;
 
       nextNodes.push({
         id: stageNodeId,
-        data: programStage,
-        position: { x: PROGRAM_STAGE_NODE_X, y: index * PROGRAM_STAGE_VERTICAL_GAP },
+        data: {
+          ...programStage,
+          programDisplayName: program.displayName,
+          programType: program.programType,
+        },
+        position: { x: stageNodeX, y: index * PROGRAM_STAGE_VERTICAL_GAP },
         type: "programStageNode",
       });
 
-      nextEdges.push({
-        id: `${program.id}-${programStage.id}`,
-        source: program.id,
-        target: stageNodeId,
+      if (showProgramNode) {
+        nextEdges.push({
+          id: `${program.id}-${programStage.id}`,
+          source: program.id,
+          target: stageNodeId,
+        });
+      } else if (program.trackedEntityType) {
+        nextEdges.push({
+          id: `${program.trackedEntityType.id}-${programStage.id}`,
+          source: program.trackedEntityType.id,
+          target: stageNodeId,
+        });
+      }
+    });
+
+    if (isTrackerProgram) {
+      const placeholderNodeId = `program-stage-placeholder-${program.id}`;
+
+      nextNodes.push({
+        id: placeholderNodeId,
+        data: {
+          displayName: "Add program stage",
+          programId: program.id,
+        },
+        position: {
+          x: stageNodeX,
+          y: programStages.length * PROGRAM_STAGE_VERTICAL_GAP,
+        },
+        type: "programStagePlaceholderNode",
       });
-    });
 
-    const placeholderNodeId = `program-stage-placeholder-${program.id}`;
-
-    nextNodes.push({
-      id: placeholderNodeId,
-      data: {
-        displayName: "Add program stage",
-        programId: program.id,
-      },
-      position: {
-        x: PROGRAM_STAGE_NODE_X,
-        y: programStages.length * PROGRAM_STAGE_VERTICAL_GAP,
-      },
-      type: "programStagePlaceholderNode",
-    });
-
-    nextEdges.push({
-      id: `${program.id}-${placeholderNodeId}`,
-      source: program.id,
-      target: placeholderNodeId,
-      style: {
-        strokeDasharray: "4 4",
-      },
-    });
+      nextEdges.push({
+        id: `${program.id}-${placeholderNodeId}`,
+        source: program.id,
+        target: placeholderNodeId,
+        style: {
+          strokeDasharray: "4 4",
+        },
+      });
+    }
 
     return { nodes: nextNodes, edges: nextEdges };
   };

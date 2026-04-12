@@ -4,7 +4,16 @@ import React from "react";
 import { ProgramStageItemNode } from "./ProgramStageItemNode";
 
 export const ProgramStageNode = ({ data, isConnectable }) => {
-  const { displayName } = data;
+  const { displayName, programDisplayName, programType } = data;
+  const isEventProgramSummary =
+    programType === "WITHOUT_REGISTRATION" && Boolean(programDisplayName);
+  const headerBorderColor = isEventProgramSummary
+    ? colors.teal300
+    : colors.blue300;
+  const headerBackgroundColor = isEventProgramSummary
+    ? colors.teal100
+    : colors.blue100;
+  const titleColor = isEventProgramSummary ? colors.teal900 : colors.blue900;
 
   return (
     <div
@@ -13,7 +22,7 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
         borderStyle: "solid",
         boxShadow: elevations.e400,
         borderWidth: 1,
-        borderColor: colors.blue300,
+        borderColor: headerBorderColor,
         borderRadius: 2,
         width: 160,
       }}
@@ -34,7 +43,7 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
           borderBottomStyle: "solid",
           borderBottomWidth: 0.7,
           borderBottomColor: colors.grey300,
-          backgroundColor: colors.blue100,
+          backgroundColor: headerBackgroundColor,
         }}
       >
         <div
@@ -43,18 +52,28 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
             fontSize: 5,
           }}
         >
-          Program stage
+          {isEventProgramSummary ? "Event program" : "Program stage"}
         </div>
         <div
           style={{
             fontWeight: "bold",
             fontSize: 10,
             marginBottom: 2,
-            color: colors.blue900,
+            color: titleColor,
           }}
         >
-          {displayName}
+          {isEventProgramSummary ? programDisplayName : displayName}
         </div>
+        {isEventProgramSummary && (
+          <div
+            style={{
+              fontSize: 6,
+              color: colors.teal800,
+            }}
+          >
+            Stage: {displayName}
+          </div>
+        )}
       </div>
       <ProgramStageItemNode hideTitle programStage={data} />
     </div>
