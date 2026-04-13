@@ -59,6 +59,7 @@ const programQuery: Query = {
 
 export const ProgramStudio = (props: {
   onAddProgramAttribute?: (programAttributeContext: any) => void;
+  onAddProgramStage?: (programStageContext: any) => void;
   onAddProgramStageDataElement?: (programStageDataElementContext: any) => void;
   onEditProgram?: (program: any) => void;
   onEditProgramAttribute?: (programAttribute: any) => void;
@@ -72,6 +73,7 @@ export const ProgramStudio = (props: {
 
   const {
     onAddProgramAttribute,
+    onAddProgramStage,
     onAddProgramStageDataElement,
     onEditProgram,
     onEditProgramAttribute,
@@ -176,6 +178,8 @@ export const ProgramStudio = (props: {
         id: placeholderNodeId,
         data: {
           displayName: "Add program stage",
+          onAddProgramStage,
+          programDisplayName: program.displayName,
           programId: program.id,
         },
         position: {

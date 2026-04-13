@@ -32,7 +32,10 @@ export const ProgramStagePlaceholderNode = ({ data, isConnectable }) => {
         }}
         onClick={(event: BaseSyntheticEvent) => {
           event.stopPropagation();
-          console.log("Add program stage", data?.programId);
+          data?.onAddProgramStage?.({
+            programDisplayName: data?.programDisplayName,
+            programId: data?.programId,
+          });
         }}
       >
         <IconAdd24 />

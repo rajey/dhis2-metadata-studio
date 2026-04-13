@@ -3,12 +3,14 @@ import React from "react";
 import { ProgramAttributeAddPanel } from "../features/program-studio/components/ProgramAttributeAddPanel";
 import { ProgramAttributeEditorPanel } from "../features/program-studio/components/ProgramAttributeEditorPanel";
 import { ProgramEditorPanel } from "../features/program-studio/components/ProgramEditorPanel";
+import { ProgramStageAddPanel } from "../features/program-studio/components/ProgramStageAddPanel";
 import { ProgramStageDataElementAddPanel } from "../features/program-studio/components/ProgramStageDataElementAddPanel";
 import { ProgramStageDataElementEditorPanel } from "../features/program-studio/components/ProgramStageDataElementEditorPanel";
 import { ProgramStageEditorPanel } from "../features/program-studio/components/ProgramStageEditorPanel";
 
 export const ToolBar = (props: {
   addingProgramAttribute?: any | null;
+  addingProgramStage?: any | null;
   addingProgramStageDataElement?: any | null;
   editingProgram?: any | null;
   editingProgramAttribute?: any | null;
@@ -18,12 +20,14 @@ export const ToolBar = (props: {
   onProgramAttributeAdded: () => void;
   onProgramAttributeSaved: (programAttribute: any) => void;
   onProgramSaved: (program: any) => void;
+  onProgramStageAdded: () => void;
   onProgramStageDataElementAdded: () => void;
   onProgramStageDataElementSaved: (programStageDataElement: any) => void;
   onProgramStageSaved: (programStage: any) => void;
 }) => {
   const {
     addingProgramAttribute,
+    addingProgramStage,
     addingProgramStageDataElement,
     editingProgram,
     editingProgramAttribute,
@@ -33,6 +37,7 @@ export const ToolBar = (props: {
     onProgramAttributeAdded,
     onProgramAttributeSaved,
     onProgramSaved,
+    onProgramStageAdded,
     onProgramStageDataElementAdded,
     onProgramStageDataElementSaved,
     onProgramStageSaved,
@@ -54,6 +59,12 @@ export const ToolBar = (props: {
           programAttributeContext={addingProgramAttribute}
           onClose={onCloseProgramEditor}
           onAdded={onProgramAttributeAdded}
+        />
+      ) : addingProgramStage ? (
+        <ProgramStageAddPanel
+          onClose={onCloseProgramEditor}
+          onAdded={onProgramStageAdded}
+          programStageContext={addingProgramStage}
         />
       ) : editingProgramAttribute ? (
         <ProgramAttributeEditorPanel

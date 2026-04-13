@@ -17,6 +17,9 @@ const MetadataStudioApp: FC = () => {
     useState<any | null>(null);
   const [editingProgramStageDataElement, setEditingProgramStageDataElement] =
     useState<any | null>(null);
+  const [addingProgramStage, setAddingProgramStage] = useState<any | null>(
+    null,
+  );
   const [editingProgramStage, setEditingProgramStage] = useState<any | null>(
     null
   );
@@ -26,6 +29,7 @@ const MetadataStudioApp: FC = () => {
     const editingProgramId =
       editingProgram?.id ||
       addingProgramAttribute?.programId ||
+      addingProgramStage?.programId ||
       editingProgramStage?.program?.id ||
       addingProgramStageDataElement?.programId ||
       editingProgramStageDataElement?.programId ||
@@ -42,10 +46,12 @@ const MetadataStudioApp: FC = () => {
       setEditingProgramAttribute(null);
       setAddingProgramStageDataElement(null);
       setEditingProgramStageDataElement(null);
+      setAddingProgramStage(null);
       setEditingProgramStage(null);
     }
   }, [
     addingProgramAttribute?.programId,
+    addingProgramStage?.programId,
     addingProgramStageDataElement?.programId,
     editingProgram?.id,
     editingProgramAttribute?.id,
@@ -69,6 +75,7 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(program);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
               setEditingProgramStage(null);
@@ -77,6 +84,7 @@ const MetadataStudioApp: FC = () => {
               setAddingProgramAttribute(programAttributeContext);
               setEditingProgram(null);
               setEditingProgramAttribute(null);
+              setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
               setEditingProgramStage(null);
@@ -85,6 +93,16 @@ const MetadataStudioApp: FC = () => {
               setEditingProgramAttribute(programAttribute);
               setEditingProgram(null);
               setAddingProgramAttribute(null);
+              setAddingProgramStage(null);
+              setAddingProgramStageDataElement(null);
+              setEditingProgramStageDataElement(null);
+              setEditingProgramStage(null);
+            }}
+            onAddProgramStage={(programStageContext) => {
+              setAddingProgramStage(programStageContext);
+              setEditingProgram(null);
+              setAddingProgramAttribute(null);
+              setEditingProgramAttribute(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
               setEditingProgramStage(null);
@@ -94,6 +112,7 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(null);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setAddingProgramStage(null);
               setEditingProgramStageDataElement(null);
               setEditingProgramStage(null);
             }}
@@ -103,6 +122,7 @@ const MetadataStudioApp: FC = () => {
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
               setAddingProgramStageDataElement(null);
+              setAddingProgramStage(null);
               setEditingProgramStage(null);
             }}
             onEditProgramStage={(programStage) => {
@@ -110,6 +130,7 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(null);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
             }}
@@ -134,6 +155,7 @@ const MetadataStudioApp: FC = () => {
       <div className="studio-design-area">{designArea}</div>
       <ToolBar
         addingProgramAttribute={addingProgramAttribute}
+        addingProgramStage={addingProgramStage}
         addingProgramStageDataElement={addingProgramStageDataElement}
         editingProgram={editingProgram}
         editingProgramAttribute={editingProgramAttribute}
@@ -143,6 +165,7 @@ const MetadataStudioApp: FC = () => {
           setEditingProgram(null);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
           setAddingProgramStageDataElement(null);
           setEditingProgramStageDataElement(null);
           setEditingProgramStage(null);
@@ -151,6 +174,7 @@ const MetadataStudioApp: FC = () => {
           setAddingProgramAttribute(null);
           setEditingProgram(null);
           setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
           setAddingProgramStageDataElement(null);
           setEditingProgramStageDataElement(null);
           setEditingProgramStage(null);
@@ -160,6 +184,7 @@ const MetadataStudioApp: FC = () => {
           setEditingProgram(program);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
           setAddingProgramStageDataElement(null);
           setEditingProgramStageDataElement(null);
           setEditingProgramStage(null);
@@ -169,6 +194,17 @@ const MetadataStudioApp: FC = () => {
           setEditingProgramAttribute(programAttribute);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
+          setAddingProgramStage(null);
+          setAddingProgramStageDataElement(null);
+          setEditingProgramStageDataElement(null);
+          setEditingProgramStage(null);
+          setProgramRefreshToken((value) => value + 1);
+        }}
+        onProgramStageAdded={() => {
+          setAddingProgramStage(null);
+          setEditingProgram(null);
+          setAddingProgramAttribute(null);
+          setEditingProgramAttribute(null);
           setAddingProgramStageDataElement(null);
           setEditingProgramStageDataElement(null);
           setEditingProgramStage(null);
@@ -179,6 +215,7 @@ const MetadataStudioApp: FC = () => {
           setEditingProgram(null);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
           setEditingProgramStageDataElement(null);
           setEditingProgramStage(null);
           setProgramRefreshToken((value) => value + 1);
@@ -188,6 +225,7 @@ const MetadataStudioApp: FC = () => {
           setEditingProgram(null);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
           setAddingProgramStageDataElement(null);
           setEditingProgramStage(null);
           setProgramRefreshToken((value) => value + 1);
@@ -197,6 +235,7 @@ const MetadataStudioApp: FC = () => {
           setEditingProgram(null);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
           setAddingProgramStageDataElement(null);
           setEditingProgramStageDataElement(null);
           setProgramRefreshToken((value) => value + 1);
