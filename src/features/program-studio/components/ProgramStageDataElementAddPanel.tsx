@@ -121,11 +121,22 @@ export const ProgramStageDataElementAddPanel = (props: {
   }, [programStageDataElementContext?.existingDataElementIds]);
 
   const availableDataElements = useMemo(() => {
-    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
     const dataElements = normalizeDataElements(data?.results);
 
     return dataElements
       .filter((dataElement) => !existingDataElementIds.has(dataElement.id))
+      .slice()
+      .sort((left, right) =>
+        (left.displayName || left.name || "").localeCompare(
+          right.displayName || right.name || "",
+        ),
+      );
+  }, [data?.results, existingDataElementIds]);
+
+  const filteredAvailableDataElements = useMemo(() => {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+    return availableDataElements
       .filter((dataElement) => {
         if (!normalizedSearchTerm) {
           return true;
@@ -136,14 +147,11 @@ export const ProgramStageDataElementAddPanel = (props: {
         } ${dataElement?.code || ""}`
           .toLowerCase()
           .includes(normalizedSearchTerm);
-      })
-      .slice()
-      .sort((left, right) =>
-        (left.displayName || left.name || "").localeCompare(
-          right.displayName || right.name || "",
-        ),
-      );
-  }, [data?.results, existingDataElementIds, searchTerm]);
+      });
+  }, [availableDataElements, searchTerm]);
+
+  const shouldShowSearch =
+    availableDataElements.length > SEARCH_THRESHOLD || Boolean(searchTerm.trim());
 
   const saveError =
     localError ||
@@ -270,7 +278,7 @@ export const ProgramStageDataElementAddPanel = (props: {
 
         {mode === "select" ? (
           <>
-            {availableDataElements.length > SEARCH_THRESHOLD && (
+            {shouldShowSearch && (
               <InputField
                 inputWidth="100%"
                 label="Search existing data elements"
@@ -285,7 +293,7 @@ export const ProgramStageDataElementAddPanel = (props: {
                 color: colors.grey700,
               }}
             >
-              {availableDataElements.length} available
+              {filteredAvailableDataElements.length} available
             </div>
 
             <div
@@ -297,8 +305,8 @@ export const ProgramStageDataElementAddPanel = (props: {
                 overflow: "hidden",
               }}
             >
-              {availableDataElements.length > 0 ? (
-                availableDataElements.map((dataElement) => {
+              {filteredAvailableDataElements.length > 0 ? (
+                filteredAvailableDataElements.map((dataElement) => {
                   const isSelected = selectedDataElementIds.includes(
                     dataElement.id,
                   );

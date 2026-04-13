@@ -142,13 +142,24 @@ export const ProgramAttributeAddPanel = (props: {
   ]);
 
   const availableAttributes = useMemo(() => {
-    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
     const trackedEntityAttributes = normalizeTrackedEntityAttributes(
       data?.results,
     );
 
     return trackedEntityAttributes
       .filter((attribute) => !excludedAttributeIds.has(attribute.id))
+      .slice()
+      .sort((left, right) =>
+        (left.displayName || left.name || "").localeCompare(
+          right.displayName || right.name || "",
+        ),
+      );
+  }, [data?.results, excludedAttributeIds]);
+
+  const filteredAvailableAttributes = useMemo(() => {
+    const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+    return availableAttributes
       .filter((attribute) => {
         if (!normalizedSearchTerm) {
           return true;
@@ -159,14 +170,11 @@ export const ProgramAttributeAddPanel = (props: {
         }`
           .toLowerCase()
           .includes(normalizedSearchTerm);
-      })
-      .slice()
-      .sort((left, right) =>
-        (left.displayName || left.name || "").localeCompare(
-          right.displayName || right.name || "",
-        ),
-      );
-  }, [data?.results, excludedAttributeIds, searchTerm]);
+      });
+  }, [availableAttributes, searchTerm]);
+
+  const shouldShowSearch =
+    availableAttributes.length > SEARCH_THRESHOLD || Boolean(searchTerm.trim());
 
   const saveError =
     localError ||
@@ -290,7 +298,7 @@ export const ProgramAttributeAddPanel = (props: {
 
         {mode === "select" ? (
           <>
-            {availableAttributes.length > SEARCH_THRESHOLD && (
+            {shouldShowSearch && (
               <InputField
                 inputWidth="100%"
                 label="Search existing attributes"
@@ -305,7 +313,7 @@ export const ProgramAttributeAddPanel = (props: {
                 color: colors.grey700,
               }}
             >
-              {availableAttributes.length} available
+              {filteredAvailableAttributes.length} available
             </div>
 
             <div
@@ -317,8 +325,8 @@ export const ProgramAttributeAddPanel = (props: {
                 overflow: "hidden",
               }}
             >
-              {availableAttributes.length > 0 ? (
-                availableAttributes.map((attribute) => {
+              {filteredAvailableAttributes.length > 0 ? (
+                filteredAvailableAttributes.map((attribute) => {
                   const isSelected = selectedAttributeIds.includes(attribute.id);
 
                   return (
