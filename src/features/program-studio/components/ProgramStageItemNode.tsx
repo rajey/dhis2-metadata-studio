@@ -83,6 +83,23 @@ export const ProgramStageItemNode = (props: {
       {isListOpened && (
         <ProgramStageDataElementNode
           dataElements={dataElements}
+          onAddDataElement={() => {
+            programStage.onAddProgramStageDataElement?.({
+              existingDataElementCount: (
+                programStage.programStageDataElements || []
+              ).length,
+              existingDataElementIds: (
+                programStage.programStageDataElements || []
+              ).map(
+                (programStageDataElement) =>
+                  programStageDataElement?.dataElement?.id,
+              ),
+              programDisplayName: programStage.programDisplayName,
+              programId: programStage.program?.id,
+              programStageDisplayName: programStage.displayName,
+              programStageId: programStage.id,
+            });
+          }}
           onEditDataElement={programStage.onEditProgramStageDataElement}
         />
       )}

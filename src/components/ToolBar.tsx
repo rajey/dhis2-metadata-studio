@@ -1,29 +1,39 @@
 import { colors, elevations } from "@dhis2/ui";
 import React from "react";
+import { ProgramAttributeAddPanel } from "../features/program-studio/components/ProgramAttributeAddPanel";
 import { ProgramAttributeEditorPanel } from "../features/program-studio/components/ProgramAttributeEditorPanel";
 import { ProgramEditorPanel } from "../features/program-studio/components/ProgramEditorPanel";
+import { ProgramStageDataElementAddPanel } from "../features/program-studio/components/ProgramStageDataElementAddPanel";
 import { ProgramStageDataElementEditorPanel } from "../features/program-studio/components/ProgramStageDataElementEditorPanel";
 import { ProgramStageEditorPanel } from "../features/program-studio/components/ProgramStageEditorPanel";
 
 export const ToolBar = (props: {
+  addingProgramAttribute?: any | null;
+  addingProgramStageDataElement?: any | null;
   editingProgram?: any | null;
   editingProgramAttribute?: any | null;
   editingProgramStageDataElement?: any | null;
   editingProgramStage?: any | null;
   onCloseProgramEditor: () => void;
+  onProgramAttributeAdded: () => void;
   onProgramAttributeSaved: (programAttribute: any) => void;
   onProgramSaved: (program: any) => void;
+  onProgramStageDataElementAdded: () => void;
   onProgramStageDataElementSaved: (programStageDataElement: any) => void;
   onProgramStageSaved: (programStage: any) => void;
 }) => {
   const {
+    addingProgramAttribute,
+    addingProgramStageDataElement,
     editingProgram,
     editingProgramAttribute,
     editingProgramStageDataElement,
     editingProgramStage,
     onCloseProgramEditor,
+    onProgramAttributeAdded,
     onProgramAttributeSaved,
     onProgramSaved,
+    onProgramStageDataElementAdded,
     onProgramStageDataElementSaved,
     onProgramStageSaved,
   } = props;
@@ -39,11 +49,23 @@ export const ToolBar = (props: {
         borderLeftColor: colors.grey500,
       }}
     >
-      {editingProgramAttribute ? (
+      {addingProgramAttribute ? (
+        <ProgramAttributeAddPanel
+          programAttributeContext={addingProgramAttribute}
+          onClose={onCloseProgramEditor}
+          onAdded={onProgramAttributeAdded}
+        />
+      ) : editingProgramAttribute ? (
         <ProgramAttributeEditorPanel
           programAttribute={editingProgramAttribute}
           onClose={onCloseProgramEditor}
           onSaved={onProgramAttributeSaved}
+        />
+      ) : addingProgramStageDataElement ? (
+        <ProgramStageDataElementAddPanel
+          programStageDataElementContext={addingProgramStageDataElement}
+          onClose={onCloseProgramEditor}
+          onAdded={onProgramStageDataElementAdded}
         />
       ) : editingProgramStageDataElement ? (
         <ProgramStageDataElementEditorPanel

@@ -7,6 +7,7 @@ import { ProgramAttributeNode } from "./ProgramAttributeNode";
 export const ProgramNode = ({ data, isConnectable }) => {
   const {
     displayName,
+    onAddProgramAttribute,
     onEditProgramAttribute,
     onEditProgram,
     programType,
@@ -108,9 +109,27 @@ export const ProgramNode = ({ data, isConnectable }) => {
         </div>
       </div>
 
-      {attributes.length > 0 && (
+      {(attributes.length > 0 || onAddProgramAttribute) && (
         <ProgramAttributeNode
           attributes={attributes}
+          onAddAttribute={() => {
+            onAddProgramAttribute?.({
+              existingAttributeCount: (programTrackedEntityAttributes || [])
+                .length,
+              existingAttributeIds: (programTrackedEntityAttributes || []).map(
+                (programTrackedEntityAttribute) =>
+                  programTrackedEntityAttribute?.trackedEntityAttribute?.id,
+              ),
+              inheritedAttributeIds: (
+                trackedEntityType?.trackedEntityTypeAttributes || []
+              ).map(
+                (trackedEntityTypeAttribute) =>
+                  trackedEntityTypeAttribute?.trackedEntityAttribute?.id,
+              ),
+              programDisplayName: displayName,
+              programId: data.id,
+            });
+          }}
           onEditAttribute={onEditProgramAttribute}
         />
       )}

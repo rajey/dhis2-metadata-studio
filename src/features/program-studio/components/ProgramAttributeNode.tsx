@@ -87,10 +87,11 @@ const reorderVisibleAttributes = (
 
 export const ProgramAttributeNode = (props: {
   hideTitle?: boolean;
+  onAddAttribute?: () => void;
   onEditAttribute?: (attribute: any) => void;
   attributes: any[];
 }) => {
-  const { hideTitle, attributes, onEditAttribute } = props;
+  const { hideTitle, onAddAttribute, attributes, onEditAttribute } = props;
   const [orderedAttributes, setOrderedAttributes] = useState(attributes);
   const [draggedAttributeId, setDraggedAttributeId] = useState<string | null>(
     null,
@@ -226,17 +227,19 @@ export const ProgramAttributeNode = (props: {
       >
         <div className="flex items-center justify-between">
           <div>Attributes</div>
-          <Tooltip content="Add attribute" placement="top">
-            <button
-              className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
-              onClick={(event: BaseSyntheticEvent) => {
-                event.stopPropagation();
-                console.log("Add attribute");
-              }}
-            >
-              <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
-            </button>
-          </Tooltip>
+          {onAddAttribute && (
+            <Tooltip content="Add attribute" placement="top">
+              <button
+                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                onClick={(event: BaseSyntheticEvent) => {
+                  event.stopPropagation();
+                  onAddAttribute();
+                }}
+              >
+                <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
+              </button>
+            </Tooltip>
+          )}
         </div>
         {!hideTitle && (
           <div

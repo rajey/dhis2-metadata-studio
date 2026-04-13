@@ -58,6 +58,8 @@ const programQuery: Query = {
 };
 
 export const ProgramStudio = (props: {
+  onAddProgramAttribute?: (programAttributeContext: any) => void;
+  onAddProgramStageDataElement?: (programStageDataElementContext: any) => void;
   onEditProgram?: (program: any) => void;
   onEditProgramAttribute?: (programAttribute: any) => void;
   onEditProgramStageDataElement?: (programStageDataElement: any) => void;
@@ -69,6 +71,8 @@ export const ProgramStudio = (props: {
   const [edges, setEdges] = useState<Edge[]>([]);
 
   const {
+    onAddProgramAttribute,
+    onAddProgramStageDataElement,
     onEditProgram,
     onEditProgramAttribute,
     onEditProgramStageDataElement,
@@ -100,6 +104,7 @@ export const ProgramStudio = (props: {
         id: program.trackedEntityType.id,
         data: {
           ...program.trackedEntityType,
+          onAddProgramAttribute,
           onEditProgramAttribute,
           programId: program.id,
         },
@@ -121,6 +126,7 @@ export const ProgramStudio = (props: {
         id: program.id,
         data: {
           ...program,
+          onAddProgramAttribute,
           onEditProgram,
           onEditProgramAttribute,
         },
@@ -136,6 +142,7 @@ export const ProgramStudio = (props: {
         id: stageNodeId,
         data: {
           ...programStage,
+          onAddProgramStageDataElement,
           onEditProgram,
           onEditProgramStageDataElement,
           onEditProgramStage,

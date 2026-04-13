@@ -77,9 +77,10 @@ const reorderVisibleDataElements = (
 
 export const ProgramStageDataElementNode = (props: {
   dataElements: any[];
+  onAddDataElement?: () => void;
   onEditDataElement?: (dataElement: any) => void;
 }) => {
-  const { dataElements, onEditDataElement } = props;
+  const { dataElements, onAddDataElement, onEditDataElement } = props;
   const [orderedDataElements, setOrderedDataElements] = useState(dataElements);
   const [draggedDataElementId, setDraggedDataElementId] = useState<
     string | null
@@ -156,17 +157,19 @@ export const ProgramStageDataElementNode = (props: {
       >
         <div className="flex items-center justify-between">
           <div>Data elements</div>
-          <Tooltip content="Add data element" placement="top">
-            <button
-              className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
-              onClick={(event: BaseSyntheticEvent) => {
-                event.stopPropagation();
-                console.log("Add data element");
-              }}
-            >
-              <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
-            </button>
-          </Tooltip>
+          {onAddDataElement && (
+            <Tooltip content="Add data element" placement="top">
+              <button
+                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                onClick={(event: BaseSyntheticEvent) => {
+                  event.stopPropagation();
+                  onAddDataElement();
+                }}
+              >
+                <img className="h-[10px]" src={iconUrl("add.svg")} alt="Add" />
+              </button>
+            </Tooltip>
+          )}
         </div>
         <div
           style={{

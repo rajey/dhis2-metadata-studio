@@ -6,9 +6,11 @@ import { ProgramAttributeNode } from "./ProgramAttributeNode";
 export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
   const {
     displayName,
+    onAddProgramAttribute,
     onEditProgramAttribute,
     programId,
     trackedEntityTypeAttributes,
+    id,
   } = data;
 
   const attributes = useMemo(() => {
@@ -75,10 +77,23 @@ export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
           {displayName}
         </div>
       </div>
-      {attributes.length > 0 && (
+      {(attributes.length > 0 || onAddProgramAttribute) && (
         <ProgramAttributeNode
           hideTitle
           attributes={attributes}
+          onAddAttribute={() => {
+            onAddProgramAttribute?.({
+              attributeContext: "trackedEntityType",
+              existingAttributeCount: (trackedEntityTypeAttributes || []).length,
+              existingAttributeIds: (trackedEntityTypeAttributes || []).map(
+                (trackedEntityTypeAttribute) =>
+                  trackedEntityTypeAttribute?.trackedEntityAttribute?.id,
+              ),
+              programId,
+              trackedEntityTypeDisplayName: displayName,
+              trackedEntityTypeId: id,
+            });
+          }}
           onEditAttribute={onEditProgramAttribute}
         />
       )}
