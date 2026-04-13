@@ -23,11 +23,18 @@ const deleteProgramStageMutation = {
   type: "delete",
 };
 
+const deleteProgramMutation = {
+  resource: "programs",
+  id: ({ id }) => id,
+  type: "delete",
+};
+
 export const ProgramStageNode = ({ data, isConnectable }) => {
   const {
     displayName,
     onEditProgram,
     onEditProgramStage,
+    onRemoveProgram,
     onRemoveProgramStage,
     program,
     programDisplayName,
@@ -37,6 +44,8 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [deleteProgramStage, { loading: removingProgramStage }] =
     useDataMutation(deleteProgramStageMutation);
+  const [deleteProgram, { loading: removingProgram }] =
+    useDataMutation(deleteProgramMutation);
   const isEventProgramSummary =
     programType === "WITHOUT_REGISTRATION" && Boolean(programDisplayName);
   const headerBorderColor = isEventProgramSummary
@@ -46,6 +55,8 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
     ? colors.teal100
     : colors.blue100;
   const titleColor = isEventProgramSummary ? colors.teal900 : colors.blue900;
+  const programStageCount = (program?.programStages || []).length;
+  const removing = removingProgramStage || removingProgram;
 
   return (
     <div
@@ -122,7 +133,14 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
                 <img className="h-[8px]" src={iconUrl("edit.svg")} alt="Edit" />
               </button>
             </Tooltip>
-            <Tooltip content={`Remove ${displayName}`} placement="top">
+            <Tooltip
+              content={
+                isEventProgramSummary
+                  ? `Delete ${programDisplayName}`
+                  : `Remove ${displayName}`
+              }
+              placement="top"
+            >
               <button
                 className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
                 onClick={(event: BaseSyntheticEvent) => {
@@ -165,9 +183,13 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
             setPendingRemoval(false);
           }}
         >
-          <ModalTitle>Remove program stage</ModalTitle>
+          <ModalTitle>
+            {isEventProgramSummary ? "Delete program" : "Remove program stage"}
+          </ModalTitle>
           <ModalContent>
-            Remove {displayName} from {programDisplayName || program?.displayName || "this program"}?
+            {isEventProgramSummary
+              ? `Delete ${programDisplayName || program?.displayName || "this program"} and its ${programStageCount} associated ${programStageCount === 1 ? "stage" : "stages"}?`
+              : `Remove ${displayName} from ${programDisplayName || program?.displayName || "this program"}?`}
             {removeError && (
               <div
                 style={{
@@ -184,7 +206,7 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
             <ButtonStrip end>
               <Button
                 secondary
-                disabled={removingProgramStage}
+                disabled={removing}
                 onClick={() => {
                   setPendingRemoval(false);
                 }}
@@ -193,22 +215,32 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
               </Button>
               <Button
                 destructive
-                loading={removingProgramStage}
+                loading={removing}
                 onClick={async () => {
                   setRemoveError(null);
 
                   try {
-                    await deleteProgramStage({ id: data.id });
+                    if (isEventProgramSummary) {
+                      for (const programStage of program?.programStages || []) {
+                        await deleteProgramStage({ id: programStage.id });
+                      }
+                      await deleteProgram({ id: program?.id });
+                      onRemoveProgram?.(program);
+                    } else {
+                      await deleteProgramStage({ id: data.id });
+                      onRemoveProgramStage?.(data);
+                    }
                     setPendingRemoval(false);
-                    onRemoveProgramStage?.(data);
                   } catch (error) {
                     setRemoveError(
-                      "The program stage could not be removed. Try again.",
+                      isEventProgramSummary
+                        ? "The program could not be deleted with its stages. Try again."
+                        : "The program stage could not be removed. Try again.",
                     );
                   }
                 }}
               >
-                Remove
+                {isEventProgramSummary ? "Delete program" : "Remove"}
               </Button>
             </ButtonStrip>
           </ModalActions>
