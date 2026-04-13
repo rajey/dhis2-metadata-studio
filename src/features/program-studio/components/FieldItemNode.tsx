@@ -1,12 +1,14 @@
 import { colors, spacers, Tooltip } from "@dhis2/ui";
+import { IconDelete16 } from "@dhis2/ui-icons";
 import React, { BaseSyntheticEvent, useMemo } from "react";
 import { iconUrl } from "../../../utils/asset";
 
 export const FieldItemNode = (props: {
   field: any;
   onEdit?: (field: any) => void;
+  onRemove?: (field: any) => void;
 }) => {
-  const { field, onEdit } = props;
+  const { field, onEdit, onRemove } = props;
 
   const fieldIcon = useMemo(() => {
     if (field.unique) {
@@ -81,18 +83,45 @@ export const FieldItemNode = (props: {
         <div>{field.displayName}</div>
       </div>
 
-      {onEdit && (
-        <Tooltip content={`Edit ${field.displayName}`} placement="top">
-          <button
-            className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
-            onClick={(event: BaseSyntheticEvent) => {
-              event.stopPropagation();
-              onEdit(field);
-            }}
-          >
-            <img className="h-[6px]" src={iconUrl("edit.svg")} alt="Edit" />
-          </button>
-        </Tooltip>
+      {(onEdit || onRemove) && (
+        <div className="flex items-center gap-1">
+          {onEdit && (
+            <Tooltip content={`Edit ${field.displayName}`} placement="top">
+              <button
+                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                onClick={(event: BaseSyntheticEvent) => {
+                  event.stopPropagation();
+                  onEdit(field);
+                }}
+              >
+                <img className="h-[6px]" src={iconUrl("edit.svg")} alt="Edit" />
+              </button>
+            </Tooltip>
+          )}
+          {onRemove && (
+            <Tooltip content={`Remove ${field.displayName}`} placement="top">
+              <button
+                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                onClick={(event: BaseSyntheticEvent) => {
+                  event.stopPropagation();
+                  onRemove(field);
+                }}
+              >
+                <span
+                  aria-label="Remove"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colors.grey700,
+                  }}
+                >
+                  <IconDelete16 />
+                </span>
+              </button>
+            </Tooltip>
+          )}
+        </div>
       )}
     </div>
   );

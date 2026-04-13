@@ -1,8 +1,14 @@
 import { useDataMutation } from "@dhis2/app-service-data";
 import {
+  Button,
+  ButtonStrip,
   colors,
   IconDragHandle16,
   IconInfo16,
+  Modal,
+  ModalActions,
+  ModalContent,
+  ModalTitle,
   NoticeBox,
   spacers,
   Tooltip,
@@ -28,6 +34,18 @@ const updateTrackedEntityTypeAttributeSortMutation = {
   type: "update",
   partial: true,
   data: ({ data }) => data,
+};
+
+const deleteProgramAttributeMutation = {
+  resource: "programTrackedEntityAttributes",
+  id: ({ id }) => id,
+  type: "delete",
+};
+
+const deleteTrackedEntityTypeAttributeMutation = {
+  resource: "trackedEntityTypeAttributes",
+  id: ({ id }) => id,
+  type: "delete",
 };
 
 const reorderAttributes = (
@@ -100,6 +118,9 @@ export const ProgramAttributeNode = (props: {
     string | null
   >(null);
   const [orderError, setOrderError] = useState<string | null>(null);
+  const [pendingRemovalAttribute, setPendingRemovalAttribute] = useState<any | null>(
+    null,
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [updateProgramAttributeSortOrder] = useDataMutation(
@@ -107,6 +128,10 @@ export const ProgramAttributeNode = (props: {
   );
   const [updateTrackedEntityTypeAttributeSortOrder] = useDataMutation(
     updateTrackedEntityTypeAttributeSortMutation,
+  );
+  const [deleteProgramAttribute] = useDataMutation(deleteProgramAttributeMutation);
+  const [deleteTrackedEntityTypeAttribute] = useDataMutation(
+    deleteTrackedEntityTypeAttributeMutation,
   );
 
   useEffect(() => {
@@ -161,6 +186,54 @@ export const ProgramAttributeNode = (props: {
 
     return "Drag rows on this page to reorder attributes";
   }, [isEditableProgramAttributeList, paginatedAttributes.length]);
+
+  const removeAttribute = async (field) => {
+    const previousAttributes = orderedAttributes;
+    const nextAttributes = orderedAttributes
+      .filter((orderedAttribute) => orderedAttribute.id !== field.id)
+      .map((orderedAttribute, index) => ({
+        ...orderedAttribute,
+        sortOrder: index + 1,
+      }));
+
+    setOrderError(null);
+    setOrderedAttributes(nextAttributes);
+
+    try {
+      if (isTrackedEntityTypeAttributeList) {
+        await deleteTrackedEntityTypeAttribute({
+          id: field.trackedEntityTypeAttributeId,
+        });
+        await Promise.all(
+          nextAttributes.map((nextAttribute) =>
+            updateTrackedEntityTypeAttributeSortOrder({
+              id: nextAttribute.trackedEntityTypeAttributeId,
+              data: {
+                sortOrder: nextAttribute.sortOrder,
+              },
+            }),
+          ),
+        );
+      } else {
+        await deleteProgramAttribute({
+          id: field.programTrackedEntityAttributeId,
+        });
+        await Promise.all(
+          nextAttributes.map((nextAttribute) =>
+            updateProgramAttributeSortOrder({
+              id: nextAttribute.programTrackedEntityAttributeId,
+              data: {
+                sortOrder: nextAttribute.sortOrder,
+              },
+            }),
+          ),
+        );
+      }
+    } catch (error) {
+      setOrderedAttributes(previousAttributes);
+      setOrderError("The attribute could not be removed. Try again.");
+    }
+  };
 
   if (!isEditableProgramAttributeList) {
     return (
@@ -449,7 +522,7 @@ export const ProgramAttributeNode = (props: {
                           ? colors.grey200
                           : colors.white,
                     }}
-                title="Drag to reorder"
+                    title="Drag to reorder"
                   >
                     <div
                       style={{
@@ -464,7 +537,13 @@ export const ProgramAttributeNode = (props: {
                     </div>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <FieldItemNode field={attribute} onEdit={onEditAttribute} />
+                    <FieldItemNode
+                      field={attribute}
+                      onEdit={onEditAttribute}
+                      onRemove={(field) => {
+                        setPendingRemovalAttribute(field);
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -536,6 +615,46 @@ export const ProgramAttributeNode = (props: {
           </div>
         )}
       </div>
+      {pendingRemovalAttribute && (
+        <Modal
+          small
+          onClose={() => {
+            setPendingRemovalAttribute(null);
+          }}
+        >
+          <ModalTitle>Remove attribute</ModalTitle>
+          <ModalContent>
+            Remove {pendingRemovalAttribute.displayName} from this{" "}
+            {isTrackedEntityTypeAttributeList
+              ? "tracked entity type"
+              : "program"}
+            ?
+          </ModalContent>
+          <ModalActions>
+            <ButtonStrip end>
+              <Button
+                secondary
+                onClick={() => {
+                  setPendingRemovalAttribute(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                destructive
+                onClick={async () => {
+                  const attributeToRemove = pendingRemovalAttribute;
+
+                  setPendingRemovalAttribute(null);
+                  await removeAttribute(attributeToRemove);
+                }}
+              >
+                Remove
+              </Button>
+            </ButtonStrip>
+          </ModalActions>
+        </Modal>
+      )}
     </div>
   );
 };

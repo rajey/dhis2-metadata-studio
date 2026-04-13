@@ -1,7 +1,13 @@
 import { useDataMutation } from "@dhis2/app-service-data";
 import {
+  Button,
+  ButtonStrip,
   colors,
   IconDragHandle16,
+  Modal,
+  ModalActions,
+  ModalContent,
+  ModalTitle,
   NoticeBox,
   spacers,
   Tooltip,
@@ -18,6 +24,12 @@ const updateProgramStageDataElementSortMutation = {
   type: "update",
   partial: true,
   data: ({ data }) => data,
+};
+
+const deleteProgramStageDataElementMutation = {
+  resource: "programStageDataElements",
+  id: ({ id }) => id,
+  type: "delete",
 };
 
 const reorderDataElements = (
@@ -89,10 +101,16 @@ export const ProgramStageDataElementNode = (props: {
     string | null
   >(null);
   const [orderError, setOrderError] = useState<string | null>(null);
+  const [pendingRemovalDataElement, setPendingRemovalDataElement] = useState<
+    any | null
+  >(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [updateProgramStageDataElementSortOrder] = useDataMutation(
     updateProgramStageDataElementSortMutation
+  );
+  const [deleteProgramStageDataElement] = useDataMutation(
+    deleteProgramStageDataElementMutation,
   );
 
   useEffect(() => {
@@ -141,6 +159,38 @@ export const ProgramStageDataElementNode = (props: {
 
     return "Drag rows on this page to reorder data elements";
   }, [onEditDataElement, paginatedDataElements.length]);
+
+  const removeDataElement = async (field) => {
+    const previousDataElements = orderedDataElements;
+    const nextDataElements = orderedDataElements
+      .filter((orderedDataElement) => orderedDataElement.id !== field.id)
+      .map((orderedDataElement, index) => ({
+        ...orderedDataElement,
+        sortOrder: index + 1,
+      }));
+
+    setOrderError(null);
+    setOrderedDataElements(nextDataElements);
+
+    try {
+      await deleteProgramStageDataElement({
+        id: field.programStageDataElementId,
+      });
+      await Promise.all(
+        nextDataElements.map((nextDataElement) =>
+          updateProgramStageDataElementSortOrder({
+            id: nextDataElement.programStageDataElementId,
+            data: {
+              sortOrder: nextDataElement.sortOrder,
+            },
+          }),
+        ),
+      );
+    } catch (error) {
+      setOrderedDataElements(previousDataElements);
+      setOrderError("The data element could not be removed. Try again.");
+    }
+  };
 
   return (
     <div>
@@ -371,6 +421,9 @@ export const ProgramStageDataElementNode = (props: {
                     <FieldItemNode
                       field={dataElement}
                       onEdit={onEditDataElement}
+                      onRemove={(field) => {
+                        setPendingRemovalDataElement(field);
+                      }}
                     />
                   </div>
                 </div>
@@ -448,6 +501,43 @@ export const ProgramStageDataElementNode = (props: {
           </div>
         )}
       </div>
+      {pendingRemovalDataElement && (
+        <Modal
+          small
+          onClose={() => {
+            setPendingRemovalDataElement(null);
+          }}
+        >
+          <ModalTitle>Remove data element</ModalTitle>
+          <ModalContent>
+            Remove {pendingRemovalDataElement.displayName} from this program
+            stage?
+          </ModalContent>
+          <ModalActions>
+            <ButtonStrip end>
+              <Button
+                secondary
+                onClick={() => {
+                  setPendingRemovalDataElement(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                destructive
+                onClick={async () => {
+                  const dataElementToRemove = pendingRemovalDataElement;
+
+                  setPendingRemovalDataElement(null);
+                  await removeDataElement(dataElementToRemove);
+                }}
+              >
+                Remove
+              </Button>
+            </ButtonStrip>
+          </ModalActions>
+        </Modal>
+      )}
     </div>
   );
 };
