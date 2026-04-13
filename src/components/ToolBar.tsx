@@ -8,6 +8,7 @@ import { ProgramStageAddPanel } from "../features/program-studio/components/Prog
 import { ProgramStageDataElementAddPanel } from "../features/program-studio/components/ProgramStageDataElementAddPanel";
 import { ProgramStageDataElementEditorPanel } from "../features/program-studio/components/ProgramStageDataElementEditorPanel";
 import { ProgramStageEditorPanel } from "../features/program-studio/components/ProgramStageEditorPanel";
+import { TrackedEntityTypeEditorPanel } from "../features/program-studio/components/TrackedEntityTypeEditorPanel";
 
 export const ToolBar = (props: {
   addingProgramAttribute?: any | null;
@@ -18,6 +19,7 @@ export const ToolBar = (props: {
   editingProgramAttribute?: any | null;
   editingProgramStageDataElement?: any | null;
   editingProgramStage?: any | null;
+  editingTrackedEntityType?: any | null;
   onCloseProgramEditor: () => void;
   onProgramAttributeAdded: () => void;
   onProgramAttributeSaved: (programAttribute: any) => void;
@@ -27,6 +29,7 @@ export const ToolBar = (props: {
   onProgramStageDataElementAdded: () => void;
   onProgramStageDataElementSaved: (programStageDataElement: any) => void;
   onProgramStageSaved: (programStage: any) => void;
+  onTrackedEntityTypeSaved: (trackedEntityType: any) => void;
 }) => {
   const {
     addingProgramAttribute,
@@ -37,6 +40,7 @@ export const ToolBar = (props: {
     editingProgramAttribute,
     editingProgramStageDataElement,
     editingProgramStage,
+    editingTrackedEntityType,
     onCloseProgramEditor,
     onProgramAttributeAdded,
     onProgramAttributeSaved,
@@ -46,6 +50,7 @@ export const ToolBar = (props: {
     onProgramStageDataElementAdded,
     onProgramStageDataElementSaved,
     onProgramStageSaved,
+    onTrackedEntityTypeSaved,
   } = props;
 
   return (
@@ -100,6 +105,12 @@ export const ToolBar = (props: {
           programStage={editingProgramStage}
           onClose={onCloseProgramEditor}
           onSaved={onProgramStageSaved}
+        />
+      ) : editingTrackedEntityType ? (
+        <TrackedEntityTypeEditorPanel
+          onClose={onCloseProgramEditor}
+          onSaved={onTrackedEntityTypeSaved}
+          trackedEntityType={editingTrackedEntityType}
         />
       ) : (
         <ProgramEditorPanel

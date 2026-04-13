@@ -65,6 +65,8 @@ export const ProgramStudio = (props: {
   onEditProgramAttribute?: (programAttribute: any) => void;
   onEditProgramStageDataElement?: (programStageDataElement: any) => void;
   onEditProgramStage?: (programStage: any) => void;
+  onEditTrackedEntityType?: (trackedEntityType: any) => void;
+  onRemoveTrackedEntityType?: (trackedEntityType: any) => void;
   onRemoveProgramStage?: (programStage: any) => void;
   programId: string;
   refreshToken?: number;
@@ -80,6 +82,8 @@ export const ProgramStudio = (props: {
     onEditProgramAttribute,
     onEditProgramStageDataElement,
     onEditProgramStage,
+    onEditTrackedEntityType,
+    onRemoveTrackedEntityType,
     onRemoveProgramStage,
     programId,
     refreshToken,
@@ -110,6 +114,9 @@ export const ProgramStudio = (props: {
           ...program.trackedEntityType,
           onAddProgramAttribute,
           onEditProgramAttribute,
+          onEditTrackedEntityType,
+          onRemoveTrackedEntityType,
+          programDisplayName: program.displayName,
           programId: program.id,
         },
         position: { x: 0, y: programY },

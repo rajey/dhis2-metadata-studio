@@ -7,6 +7,9 @@ import { DataSetStudio, ProgramStudio } from "./features";
 const MetadataStudioApp: FC = () => {
   const [selectedMetaData, setSelectedMetaData] = useState<any>();
   const [creatingProgram, setCreatingProgram] = useState<any | null>(null);
+  const [editingTrackedEntityType, setEditingTrackedEntityType] = useState<
+    any | null
+  >(null);
   const [editingProgram, setEditingProgram] = useState<any | null>(null);
   const [addingProgramAttribute, setAddingProgramAttribute] = useState<
     any | null
@@ -29,6 +32,7 @@ const MetadataStudioApp: FC = () => {
   useEffect(() => {
     const editingProgramId =
       editingProgram?.id ||
+      editingTrackedEntityType?.programId ||
       addingProgramAttribute?.programId ||
       addingProgramStage?.programId ||
       editingProgramStage?.program?.id ||
@@ -45,6 +49,7 @@ const MetadataStudioApp: FC = () => {
       setEditingProgram(null);
       setAddingProgramAttribute(null);
       setEditingProgramAttribute(null);
+      setEditingTrackedEntityType(null);
       setAddingProgramStageDataElement(null);
       setEditingProgramStageDataElement(null);
       setAddingProgramStage(null);
@@ -55,6 +60,8 @@ const MetadataStudioApp: FC = () => {
     addingProgramStage?.programId,
     addingProgramStageDataElement?.programId,
     editingProgram?.id,
+    editingTrackedEntityType?.id,
+    editingTrackedEntityType?.programId,
     editingProgramAttribute?.id,
     editingProgramAttribute?.programId,
     editingProgramStageDataElement?.id,
@@ -76,6 +83,17 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(program);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
+              setAddingProgramStage(null);
+              setAddingProgramStageDataElement(null);
+              setEditingProgramStageDataElement(null);
+              setEditingProgramStage(null);
+            }}
+            onEditTrackedEntityType={(trackedEntityType) => {
+              setEditingTrackedEntityType(trackedEntityType);
+              setEditingProgram(null);
+              setAddingProgramAttribute(null);
+              setEditingProgramAttribute(null);
               setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
@@ -85,6 +103,7 @@ const MetadataStudioApp: FC = () => {
               setAddingProgramAttribute(programAttributeContext);
               setEditingProgram(null);
               setEditingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
               setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
@@ -94,6 +113,7 @@ const MetadataStudioApp: FC = () => {
               setEditingProgramAttribute(programAttribute);
               setEditingProgram(null);
               setAddingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
               setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
@@ -104,6 +124,7 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(null);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
               setEditingProgramStage(null);
@@ -113,6 +134,7 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(null);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
               setAddingProgramStage(null);
               setEditingProgramStageDataElement(null);
               setEditingProgramStage(null);
@@ -122,6 +144,7 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(null);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
               setAddingProgramStageDataElement(null);
               setAddingProgramStage(null);
               setEditingProgramStage(null);
@@ -131,14 +154,29 @@ const MetadataStudioApp: FC = () => {
               setEditingProgram(null);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
               setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
+            }}
+            onRemoveTrackedEntityType={() => {
+              setCreatingProgram(null);
+              setEditingTrackedEntityType(null);
+              setEditingProgram(null);
+              setAddingProgramAttribute(null);
+              setEditingProgramAttribute(null);
+              setAddingProgramStage(null);
+              setAddingProgramStageDataElement(null);
+              setEditingProgramStageDataElement(null);
+              setEditingProgramStage(null);
+              setSelectedMetaData(undefined);
+              setProgramRefreshToken((value) => value + 1);
             }}
             onRemoveProgramStage={(programStage) => {
               setEditingProgram(null);
               setAddingProgramAttribute(null);
               setEditingProgramAttribute(null);
+              setEditingTrackedEntityType(null);
               setAddingProgramStage(null);
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
@@ -164,6 +202,7 @@ const MetadataStudioApp: FC = () => {
         onCreateNew={(programCreateContext: any) => {
           setCreatingProgram(programCreateContext);
           setSelectedMetaData(undefined);
+          setEditingTrackedEntityType(null);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
@@ -174,6 +213,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onSelect={(selectedMetaData: any) => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setSelectedMetaData(selectedMetaData);
         }}
         refreshToken={programRefreshToken}
@@ -188,8 +228,10 @@ const MetadataStudioApp: FC = () => {
         editingProgramAttribute={editingProgramAttribute}
         editingProgramStageDataElement={editingProgramStageDataElement}
         editingProgramStage={editingProgramStage}
+        editingTrackedEntityType={editingTrackedEntityType}
         onCloseProgramEditor={() => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
@@ -200,6 +242,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramAttributeAdded={() => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setAddingProgramAttribute(null);
           setEditingProgram(null);
           setEditingProgramAttribute(null);
@@ -211,6 +254,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramSaved={(program) => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setEditingProgram(program);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
@@ -222,6 +266,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramAttributeSaved={(programAttribute) => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setEditingProgramAttribute(programAttribute);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
@@ -233,6 +278,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramStageAdded={() => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setAddingProgramStage(null);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
@@ -244,6 +290,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramStageDataElementAdded={() => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setAddingProgramStageDataElement(null);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
@@ -255,6 +302,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramStageDataElementSaved={(programStageDataElement) => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setEditingProgramStageDataElement(programStageDataElement);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
@@ -266,6 +314,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramStageSaved={(programStage) => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setEditingProgramStage(programStage);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
@@ -277,6 +326,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramCreated={(program) => {
           setCreatingProgram(null);
+          setEditingTrackedEntityType(null);
           setEditingProgram(null);
           setAddingProgramAttribute(null);
           setEditingProgramAttribute(null);
@@ -288,6 +338,18 @@ const MetadataStudioApp: FC = () => {
             id: program.id,
             resource: "programs",
           });
+          setProgramRefreshToken((value) => value + 1);
+        }}
+        onTrackedEntityTypeSaved={(trackedEntityType) => {
+          setCreatingProgram(null);
+          setEditingTrackedEntityType(trackedEntityType);
+          setEditingProgram(null);
+          setAddingProgramAttribute(null);
+          setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
+          setAddingProgramStageDataElement(null);
+          setEditingProgramStageDataElement(null);
+          setEditingProgramStage(null);
           setProgramRefreshToken((value) => value + 1);
         }}
       />
