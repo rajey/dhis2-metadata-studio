@@ -1,18 +1,42 @@
-import { colors, elevations, spacers, Tooltip } from "@dhis2/ui";
+import {
+  Button,
+  ButtonStrip,
+  colors,
+  elevations,
+  Modal,
+  ModalActions,
+  ModalContent,
+  ModalTitle,
+  spacers,
+  Tooltip,
+} from "@dhis2/ui";
+import { IconDelete16 } from "@dhis2/ui-icons";
+import { useDataMutation } from "@dhis2/app-service-data";
 import { Handle, Position } from "@xyflow/react";
-import React, { BaseSyntheticEvent } from "react";
+import React, { BaseSyntheticEvent, useState } from "react";
 import { iconUrl } from "../../../utils/asset";
 import { ProgramStageItemNode } from "./ProgramStageItemNode";
+
+const deleteProgramStageMutation = {
+  resource: "programStages",
+  id: ({ id }) => id,
+  type: "delete",
+};
 
 export const ProgramStageNode = ({ data, isConnectable }) => {
   const {
     displayName,
     onEditProgram,
     onEditProgramStage,
+    onRemoveProgramStage,
     program,
     programDisplayName,
     programType,
   } = data;
+  const [pendingRemoval, setPendingRemoval] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [deleteProgramStage, { loading: removingProgramStage }] =
+    useDataMutation(deleteProgramStageMutation);
   const isEventProgramSummary =
     programType === "WITHOUT_REGISTRATION" && Boolean(programDisplayName);
   const headerBorderColor = isEventProgramSummary
@@ -98,6 +122,28 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
                 <img className="h-[8px]" src={iconUrl("edit.svg")} alt="Edit" />
               </button>
             </Tooltip>
+            <Tooltip content={`Remove ${displayName}`} placement="top">
+              <button
+                className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
+                onClick={(event: BaseSyntheticEvent) => {
+                  event.stopPropagation();
+                  setRemoveError(null);
+                  setPendingRemoval(true);
+                }}
+              >
+                <span
+                  aria-label="Remove"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: colors.grey700,
+                  }}
+                >
+                  <IconDelete16 />
+                </span>
+              </button>
+            </Tooltip>
           </div>
         </div>
         {isEventProgramSummary && (
@@ -112,6 +158,62 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
         )}
       </div>
       <ProgramStageItemNode hideTitle programStage={data} />
+      {pendingRemoval && (
+        <Modal
+          small
+          onClose={() => {
+            setPendingRemoval(false);
+          }}
+        >
+          <ModalTitle>Remove program stage</ModalTitle>
+          <ModalContent>
+            Remove {displayName} from {programDisplayName || program?.displayName || "this program"}?
+            {removeError && (
+              <div
+                style={{
+                  marginTop: spacers.dp12,
+                  color: colors.red700,
+                  fontSize: 12,
+                }}
+              >
+                {removeError}
+              </div>
+            )}
+          </ModalContent>
+          <ModalActions>
+            <ButtonStrip end>
+              <Button
+                secondary
+                disabled={removingProgramStage}
+                onClick={() => {
+                  setPendingRemoval(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                destructive
+                loading={removingProgramStage}
+                onClick={async () => {
+                  setRemoveError(null);
+
+                  try {
+                    await deleteProgramStage({ id: data.id });
+                    setPendingRemoval(false);
+                    onRemoveProgramStage?.(data);
+                  } catch (error) {
+                    setRemoveError(
+                      "The program stage could not be removed. Try again.",
+                    );
+                  }
+                }}
+              >
+                Remove
+              </Button>
+            </ButtonStrip>
+          </ModalActions>
+        </Modal>
+      )}
     </div>
   );
 };

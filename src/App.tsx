@@ -134,6 +134,18 @@ const MetadataStudioApp: FC = () => {
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
             }}
+            onRemoveProgramStage={(programStage) => {
+              setEditingProgram(null);
+              setAddingProgramAttribute(null);
+              setEditingProgramAttribute(null);
+              setAddingProgramStage(null);
+              setAddingProgramStageDataElement(null);
+              setEditingProgramStageDataElement(null);
+              if (editingProgramStage?.id === programStage?.id) {
+                setEditingProgramStage(null);
+              }
+              setProgramRefreshToken((value) => value + 1);
+            }}
             programId={selectedMetaData.id}
             refreshToken={programRefreshToken}
           />

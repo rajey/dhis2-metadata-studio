@@ -65,6 +65,7 @@ export const ProgramStudio = (props: {
   onEditProgramAttribute?: (programAttribute: any) => void;
   onEditProgramStageDataElement?: (programStageDataElement: any) => void;
   onEditProgramStage?: (programStage: any) => void;
+  onRemoveProgramStage?: (programStage: any) => void;
   programId: string;
   refreshToken?: number;
 }) => {
@@ -79,6 +80,7 @@ export const ProgramStudio = (props: {
     onEditProgramAttribute,
     onEditProgramStageDataElement,
     onEditProgramStage,
+    onRemoveProgramStage,
     programId,
     refreshToken,
   } = props;
@@ -148,6 +150,7 @@ export const ProgramStudio = (props: {
           onEditProgram,
           onEditProgramStageDataElement,
           onEditProgramStage,
+          onRemoveProgramStage,
           program,
           programDisplayName: program.displayName,
           programType: program.programType,
