@@ -1,5 +1,6 @@
 import { colors, elevations } from "@dhis2/ui";
 import React from "react";
+import { NodeSummaryPanel } from "../features/program-studio/components/NodeSummaryPanel";
 import { ProgramAttributeAddPanel } from "../features/program-studio/components/ProgramAttributeAddPanel";
 import { ProgramAttributeEditorPanel } from "../features/program-studio/components/ProgramAttributeEditorPanel";
 import { ProgramCreatePanel } from "../features/program-studio/components/ProgramCreatePanel";
@@ -20,6 +21,7 @@ export const ToolBar = (props: {
   editingProgramStageDataElement?: any | null;
   editingProgramStage?: any | null;
   editingTrackedEntityType?: any | null;
+  inspectingNode?: any | null;
   onCloseProgramEditor: () => void;
   onProgramAttributeAdded: () => void;
   onProgramAttributeSaved: (programAttribute: any) => void;
@@ -41,6 +43,7 @@ export const ToolBar = (props: {
     editingProgramStageDataElement,
     editingProgramStage,
     editingTrackedEntityType,
+    inspectingNode,
     onCloseProgramEditor,
     onProgramAttributeAdded,
     onProgramAttributeSaved,
@@ -106,6 +109,12 @@ export const ToolBar = (props: {
           onClose={onCloseProgramEditor}
           onSaved={onProgramStageSaved}
         />
+      ) : editingProgram ? (
+        <ProgramEditorPanel
+          onClose={onCloseProgramEditor}
+          onSaved={onProgramSaved}
+          program={editingProgram}
+        />
       ) : editingTrackedEntityType ? (
         <TrackedEntityTypeEditorPanel
           onClose={onCloseProgramEditor}
@@ -113,11 +122,7 @@ export const ToolBar = (props: {
           trackedEntityType={editingTrackedEntityType}
         />
       ) : (
-        <ProgramEditorPanel
-          program={editingProgram}
-          onClose={onCloseProgramEditor}
-          onSaved={onProgramSaved}
-        />
+        <NodeSummaryPanel nodeSummary={inspectingNode} />
       )}
     </div>
   );

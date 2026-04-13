@@ -7,6 +7,7 @@ import { DataSetStudio, ProgramStudio } from "./features";
 const MetadataStudioApp: FC = () => {
   const [selectedMetaData, setSelectedMetaData] = useState<any>();
   const [creatingProgram, setCreatingProgram] = useState<any | null>(null);
+  const [inspectingNode, setInspectingNode] = useState<any | null>(null);
   const [editingTrackedEntityType, setEditingTrackedEntityType] = useState<
     any | null
   >(null);
@@ -47,6 +48,7 @@ const MetadataStudioApp: FC = () => {
       (editingProgramId && selectedMetaData.id !== editingProgramId)
     ) {
       setEditingProgram(null);
+      setInspectingNode(null);
       setAddingProgramAttribute(null);
       setEditingProgramAttribute(null);
       setEditingTrackedEntityType(null);
@@ -88,6 +90,9 @@ const MetadataStudioApp: FC = () => {
               setAddingProgramStageDataElement(null);
               setEditingProgramStageDataElement(null);
               setEditingProgramStage(null);
+            }}
+            onInspectNode={(nodeSummary) => {
+              setInspectingNode(nodeSummary);
             }}
             onEditTrackedEntityType={(trackedEntityType) => {
               setEditingTrackedEntityType(trackedEntityType);
@@ -214,6 +219,7 @@ const MetadataStudioApp: FC = () => {
       <MetaDataPanel
         onCreateNew={(programCreateContext: any) => {
           setCreatingProgram(programCreateContext);
+          setInspectingNode(null);
           setSelectedMetaData(undefined);
           setEditingTrackedEntityType(null);
           setEditingProgram(null);
@@ -226,6 +232,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onSelect={(selectedMetaData: any) => {
           setCreatingProgram(null);
+          setInspectingNode(null);
           setEditingTrackedEntityType(null);
           setSelectedMetaData(selectedMetaData);
         }}
@@ -242,6 +249,7 @@ const MetadataStudioApp: FC = () => {
         editingProgramStageDataElement={editingProgramStageDataElement}
         editingProgramStage={editingProgramStage}
         editingTrackedEntityType={editingTrackedEntityType}
+        inspectingNode={inspectingNode}
         onCloseProgramEditor={() => {
           setCreatingProgram(null);
           setEditingTrackedEntityType(null);
@@ -339,6 +347,7 @@ const MetadataStudioApp: FC = () => {
         }}
         onProgramCreated={(program) => {
           setCreatingProgram(null);
+          setInspectingNode(null);
           setEditingTrackedEntityType(null);
           setEditingProgram(null);
           setAddingProgramAttribute(null);

@@ -56,12 +56,14 @@ const normalizePrograms = (results: any) => {
   return [];
 };
 
-export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
+export const TrackedEntityTypeNode = ({ data, isConnectable, selected }) => {
   const {
     displayName,
+    isFocused,
     onAddProgramAttribute,
     onEditProgramAttribute,
     onEditTrackedEntityType,
+    onInspectNode,
     onRemoveTrackedEntityType,
     programDisplayName,
     programId,
@@ -108,6 +110,7 @@ export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
     : referencedProgramCount > 1
       ? `Used by ${referencedProgramCount} programs`
       : `Delete ${displayName} and ${programDisplayName || "the linked program"}`;
+  const isSelected = selected || isFocused;
 
   return (
     <div
@@ -115,9 +118,11 @@ export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
         backgroundColor: colors.white,
         borderStyle: "solid",
         boxShadow: elevations.e400,
-        borderWidth: 1,
-        borderColor: colors.yellow300,
+        borderWidth: isSelected ? 2 : 1,
+        borderColor: isSelected ? colors.yellow700 : colors.yellow300,
         borderRadius: 2,
+        outline: isSelected ? `2px solid ${colors.yellow300}` : "none",
+        outlineOffset: 2,
         width: 160,
       }}
     >
@@ -164,6 +169,7 @@ export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
                 className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
                 onClick={(event: BaseSyntheticEvent) => {
                   event.stopPropagation();
+                  onInspectNode?.();
                   onEditTrackedEntityType?.(data);
                 }}
               >
@@ -179,6 +185,7 @@ export const TrackedEntityTypeNode = ({ data, isConnectable }) => {
                   if (!canRemoveTrackedEntityType) {
                     return;
                   }
+                  onInspectNode?.();
                   setRemoveError(null);
                   setPendingRemoval(true);
                 }}

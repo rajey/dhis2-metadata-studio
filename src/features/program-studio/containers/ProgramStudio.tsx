@@ -46,6 +46,7 @@ const programQuery: Query = {
         "enrollmentDateLabel",
         "incidentDateLabel",
         "onlyEnrollOnce",
+        "programRules[id,name,displayName]",
         "selectEnrollmentDatesInFuture",
         "selectIncidentDatesInFuture",
         "useFirstStageDuringRegistration",
@@ -66,6 +67,7 @@ export const ProgramStudio = (props: {
   onEditProgramStageDataElement?: (programStageDataElement: any) => void;
   onEditProgramStage?: (programStage: any) => void;
   onEditTrackedEntityType?: (trackedEntityType: any) => void;
+  onInspectNode?: (nodeSummary: any | null) => void;
   onRemoveProgram?: (program: any) => void;
   onRemoveTrackedEntityType?: (trackedEntityType: any) => void;
   onRemoveProgramStage?: (programStage: any) => void;
@@ -74,6 +76,7 @@ export const ProgramStudio = (props: {
 }) => {
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
+  const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
 
   const {
     onAddProgramAttribute,
@@ -84,6 +87,7 @@ export const ProgramStudio = (props: {
     onEditProgramStageDataElement,
     onEditProgramStage,
     onEditTrackedEntityType,
+    onInspectNode,
     onRemoveProgram,
     onRemoveTrackedEntityType,
     onRemoveProgramStage,
@@ -114,14 +118,27 @@ export const ProgramStudio = (props: {
         id: program.trackedEntityType.id,
         data: {
           ...program.trackedEntityType,
+          isFocused: focusedNodeId === program.trackedEntityType.id,
           onAddProgramAttribute,
           onEditProgramAttribute,
           onEditTrackedEntityType,
+          onInspectNode: () => {
+            setFocusedNodeId(program.trackedEntityType.id);
+            onInspectNode?.({
+              data: {
+                ...program.trackedEntityType,
+                programDisplayName: program.displayName,
+                programId: program.id,
+              },
+              kind: "trackedEntityType",
+            });
+          },
           onRemoveTrackedEntityType,
           programDisplayName: program.displayName,
           programId: program.id,
         },
         position: { x: 0, y: programY },
+        selected: focusedNodeId === program.trackedEntityType.id,
         type: "trackedEntityTypeNode",
       });
 
@@ -139,12 +156,21 @@ export const ProgramStudio = (props: {
         id: program.id,
         data: {
           ...program,
+          isFocused: focusedNodeId === program.id,
           onAddProgramAttribute,
           onEditProgram,
           onEditProgramAttribute,
+          onInspectNode: () => {
+            setFocusedNodeId(program.id);
+            onInspectNode?.({
+              data: program,
+              kind: "program",
+            });
+          },
           onRemoveProgram,
         },
         position: { x: PROGRAM_NODE_X, y: programY },
+        selected: focusedNodeId === program.id,
         type: "programNode",
       });
     }
@@ -156,10 +182,23 @@ export const ProgramStudio = (props: {
         id: stageNodeId,
         data: {
           ...programStage,
+          isFocused: focusedNodeId === stageNodeId,
           onAddProgramStageDataElement,
           onEditProgram,
           onEditProgramStageDataElement,
           onEditProgramStage,
+          onInspectNode: () => {
+            setFocusedNodeId(stageNodeId);
+            onInspectNode?.({
+              data: {
+                ...programStage,
+                program,
+                programDisplayName: program.displayName,
+                programType: program.programType,
+              },
+              kind: "programStage",
+            });
+          },
           onRemoveProgram,
           onRemoveProgramStage,
           program,
@@ -167,6 +206,7 @@ export const ProgramStudio = (props: {
           programType: program.programType,
         },
         position: { x: stageNodeX, y: index * PROGRAM_STAGE_VERTICAL_GAP },
+        selected: focusedNodeId === stageNodeId,
         type: "programStageNode",
       });
 
@@ -231,7 +271,7 @@ export const ProgramStudio = (props: {
       setNodes(nextFlow.nodes);
       setEdges(nextFlow.edges);
     }
-  }, [data]);
+  }, [data, focusedNodeId]);
 
   const onNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -245,6 +285,43 @@ export const ProgramStudio = (props: {
     (params) => setEdges((eds) => addEdge(params, eds)),
     []
   );
+  const onNodeClick = useCallback(
+    (_event, node) => {
+      if (node.type === "programStagePlaceholderNode") {
+        return;
+      }
+
+      setFocusedNodeId(node.id);
+
+      if (node.type === "programNode") {
+        onInspectNode?.({
+          data: node.data,
+          kind: "program",
+        });
+        return;
+      }
+
+      if (node.type === "trackedEntityTypeNode") {
+        onInspectNode?.({
+          data: node.data,
+          kind: "trackedEntityType",
+        });
+        return;
+      }
+
+      if (node.type === "programStageNode") {
+        onInspectNode?.({
+          data: node.data,
+          kind: "programStage",
+        });
+      }
+    },
+    [onInspectNode],
+  );
+  const onPaneClick = useCallback(() => {
+    setFocusedNodeId(null);
+    onInspectNode?.(null);
+  }, [onInspectNode]);
 
   return (
     <>
@@ -261,7 +338,9 @@ export const ProgramStudio = (props: {
           nodeTypes={nodeTypes}
           edges={edges}
           onNodesChange={onNodesChange}
+          onNodeClick={onNodeClick}
           onEdgesChange={onEdgesChange}
+          onPaneClick={onPaneClick}
           onConnect={onConnect}
           fitView
         >

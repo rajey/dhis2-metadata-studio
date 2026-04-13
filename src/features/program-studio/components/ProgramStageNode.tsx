@@ -29,11 +29,13 @@ const deleteProgramMutation = {
   type: "delete",
 };
 
-export const ProgramStageNode = ({ data, isConnectable }) => {
+export const ProgramStageNode = ({ data, isConnectable, selected }) => {
   const {
     displayName,
+    isFocused,
     onEditProgram,
     onEditProgramStage,
+    onInspectNode,
     onRemoveProgram,
     onRemoveProgramStage,
     program,
@@ -57,6 +59,7 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
   const titleColor = isEventProgramSummary ? colors.teal900 : colors.blue900;
   const programStageCount = (program?.programStages || []).length;
   const removing = removingProgramStage || removingProgram;
+  const isSelected = selected || isFocused;
 
   return (
     <div
@@ -64,9 +67,11 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
         backgroundColor: colors.white,
         borderStyle: "solid",
         boxShadow: elevations.e400,
-        borderWidth: 1,
-        borderColor: headerBorderColor,
+        borderWidth: isSelected ? 2 : 1,
+        borderColor: isSelected ? titleColor : headerBorderColor,
         borderRadius: 2,
+        outline: isSelected ? `2px solid ${headerBorderColor}` : "none",
+        outlineOffset: 2,
         width: 160,
       }}
     >
@@ -115,6 +120,7 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
                   className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
                   onClick={(event: BaseSyntheticEvent) => {
                     event.stopPropagation();
+                    onInspectNode?.();
                     onEditProgram?.(program);
                   }}
                 >
@@ -127,6 +133,7 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
                 className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
                 onClick={(event: BaseSyntheticEvent) => {
                   event.stopPropagation();
+                  onInspectNode?.();
                   onEditProgramStage?.(data);
                 }}
               >
@@ -145,6 +152,7 @@ export const ProgramStageNode = ({ data, isConnectable }) => {
                 className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
                 onClick={(event: BaseSyntheticEvent) => {
                   event.stopPropagation();
+                  onInspectNode?.();
                   setRemoveError(null);
                   setPendingRemoval(true);
                 }}

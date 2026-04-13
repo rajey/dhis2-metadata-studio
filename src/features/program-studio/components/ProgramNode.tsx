@@ -29,12 +29,14 @@ const deleteProgramStageMutation = {
   type: "delete",
 };
 
-export const ProgramNode = ({ data, isConnectable }) => {
+export const ProgramNode = ({ data, isConnectable, selected }) => {
   const {
     displayName,
+    isFocused,
     onAddProgramAttribute,
     onEditProgramAttribute,
     onEditProgram,
+    onInspectNode,
     onRemoveProgram,
     programStages,
     programType,
@@ -82,6 +84,7 @@ export const ProgramNode = ({ data, isConnectable }) => {
 
   const programStageCount = (programStages || []).length;
   const removing = removingProgram || removingProgramStage;
+  const isSelected = selected || isFocused;
 
   return (
     <div
@@ -89,9 +92,11 @@ export const ProgramNode = ({ data, isConnectable }) => {
         backgroundColor: colors.white,
         borderStyle: "solid",
         boxShadow: elevations.e400,
-        borderWidth: 1,
-        borderColor: colors.teal500,
+        borderWidth: isSelected ? 2 : 1,
+        borderColor: isSelected ? colors.teal700 : colors.teal500,
         borderRadius: 2,
+        outline: isSelected ? `2px solid ${colors.teal300}` : "none",
+        outlineOffset: 2,
         width: 160,
       }}
     >
@@ -137,6 +142,7 @@ export const ProgramNode = ({ data, isConnectable }) => {
                 className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
                 onClick={(event: BaseSyntheticEvent) => {
                   event.stopPropagation();
+                  onInspectNode?.();
                   onEditProgram?.(data);
                 }}
               >
@@ -148,6 +154,7 @@ export const ProgramNode = ({ data, isConnectable }) => {
                 className="p-[1px] border-none bg-transparent flex items-center hover:bg-gray-200 cursor-pointer rounded-sm"
                 onClick={(event: BaseSyntheticEvent) => {
                   event.stopPropagation();
+                  onInspectNode?.();
                   setRemoveError(null);
                   setPendingRemoval(true);
                 }}
