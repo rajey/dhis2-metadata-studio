@@ -127,40 +127,35 @@ export const ProgramAttributeAddPanel = (props: {
   const isTrackedEntityTypeContext =
     programAttributeContext?.attributeContext === "trackedEntityType" ||
     Boolean(programAttributeContext?.trackedEntityTypeId);
-
-  const excludedAttributeIds = useMemo(() => {
-    return new Set([
-      ...(programAttributeContext?.existingAttributeIds || []),
-      ...(!isTrackedEntityTypeContext
+  const existingAttributeIds = useMemo(() => {
+    return new Set(programAttributeContext?.existingAttributeIds || []);
+  }, [programAttributeContext?.existingAttributeIds]);
+  const inheritedAttributeIds = useMemo(() => {
+    return new Set(
+      !isTrackedEntityTypeContext
         ? programAttributeContext?.inheritedAttributeIds || []
-        : []),
-    ]);
-  }, [
-    isTrackedEntityTypeContext,
-    programAttributeContext?.existingAttributeIds,
-    programAttributeContext?.inheritedAttributeIds,
-  ]);
+        : [],
+    );
+  }, [isTrackedEntityTypeContext, programAttributeContext?.inheritedAttributeIds]);
 
-  const availableAttributes = useMemo(() => {
+  const listedAttributes = useMemo(() => {
     const trackedEntityAttributes = normalizeTrackedEntityAttributes(
       data?.results,
     );
 
     return trackedEntityAttributes
-      .filter((attribute) => !excludedAttributeIds.has(attribute.id))
       .slice()
       .sort((left, right) =>
         (left.displayName || left.name || "").localeCompare(
           right.displayName || right.name || "",
         ),
       );
-  }, [data?.results, excludedAttributeIds]);
+  }, [data?.results]);
 
-  const filteredAvailableAttributes = useMemo(() => {
+  const filteredAttributes = useMemo(() => {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
-    return availableAttributes
-      .filter((attribute) => {
+    return listedAttributes.filter((attribute) => {
         if (!normalizedSearchTerm) {
           return true;
         }
@@ -171,10 +166,21 @@ export const ProgramAttributeAddPanel = (props: {
           .toLowerCase()
           .includes(normalizedSearchTerm);
       });
-  }, [availableAttributes, searchTerm]);
+  }, [listedAttributes, searchTerm]);
+
+  const selectableFilteredAttributes = useMemo(() => {
+    return filteredAttributes.filter(
+      (attribute) =>
+        !existingAttributeIds.has(attribute.id) &&
+        !inheritedAttributeIds.has(attribute.id),
+    );
+  }, [existingAttributeIds, filteredAttributes, inheritedAttributeIds]);
+
+  const lockedFilteredAttributes = filteredAttributes.length -
+    selectableFilteredAttributes.length;
 
   const shouldShowSearch =
-    availableAttributes.length > SEARCH_THRESHOLD || Boolean(searchTerm.trim());
+    listedAttributes.length > SEARCH_THRESHOLD || Boolean(searchTerm.trim());
 
   const saveError =
     localError ||
@@ -313,7 +319,10 @@ export const ProgramAttributeAddPanel = (props: {
                 color: colors.grey700,
               }}
             >
-              {filteredAvailableAttributes.length} available
+              {selectableFilteredAttributes.length} selectable
+              {lockedFilteredAttributes > 0
+                ? ` • ${lockedFilteredAttributes} locked`
+                : ""}
             </div>
 
             <div
@@ -325,9 +334,17 @@ export const ProgramAttributeAddPanel = (props: {
                 overflow: "hidden",
               }}
             >
-              {filteredAvailableAttributes.length > 0 ? (
-                filteredAvailableAttributes.map((attribute) => {
+              {filteredAttributes.length > 0 ? (
+                filteredAttributes.map((attribute) => {
                   const isSelected = selectedAttributeIds.includes(attribute.id);
+                  const isAlreadyAdded = existingAttributeIds.has(attribute.id);
+                  const isInherited = inheritedAttributeIds.has(attribute.id);
+                  const isLocked = isAlreadyAdded || isInherited;
+                  const statusLabel = isInherited
+                    ? "Inherited"
+                    : isAlreadyAdded
+                      ? "Added"
+                      : null;
 
                   return (
                     <label
@@ -340,11 +357,14 @@ export const ProgramAttributeAddPanel = (props: {
                         borderTopStyle: "solid",
                         borderTopWidth: 0.7,
                         borderTopColor: colors.grey300,
-                        cursor: "pointer",
+                        cursor: isLocked ? "not-allowed" : "pointer",
+                        opacity: isLocked ? 0.75 : 1,
+                        backgroundColor: isLocked ? colors.grey100 : colors.white,
                       }}
                     >
                       <input
-                        checked={isSelected}
+                        checked={isSelected || isLocked}
+                        disabled={isLocked}
                         type="checkbox"
                         onChange={(event) => {
                           const { checked } = event.target;
@@ -357,14 +377,34 @@ export const ProgramAttributeAddPanel = (props: {
                         }}
                       />
                       <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 500,
-                            color: colors.grey900,
-                          }}
-                        >
-                          {attribute.displayName}
+                        <div className="flex items-center justify-between gap-2">
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 500,
+                              color: colors.grey900,
+                            }}
+                          >
+                            {attribute.displayName}
+                          </div>
+                          {statusLabel && (
+                            <span
+                              style={{
+                                fontSize: 10,
+                                padding: `2px ${spacers.dp4}px`,
+                                borderRadius: 10,
+                                backgroundColor: isInherited
+                                  ? colors.yellow200
+                                  : colors.green100,
+                                color: isInherited
+                                  ? colors.yellow900
+                                  : colors.green900,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {statusLabel}
+                            </span>
+                          )}
                         </div>
                         <div
                           style={{
@@ -380,6 +420,16 @@ export const ProgramAttributeAddPanel = (props: {
                     </label>
                   );
                 })
+              ) : searchTerm.trim() ? (
+                <div
+                  style={{
+                    padding: spacers.dp12,
+                    fontSize: 12,
+                    color: colors.grey700,
+                  }}
+                >
+                  No matching tracked entity attributes.
+                </div>
               ) : (
                 <div
                   style={{
@@ -388,8 +438,8 @@ export const ProgramAttributeAddPanel = (props: {
                     color: colors.grey700,
                   }}
                 >
-                  No available tracked entity attributes. Create a new one to
-                  add it directly to the program.
+                  No tracked entity attributes found. Create a new one to add it
+                  directly.
                 </div>
               )}
             </div>

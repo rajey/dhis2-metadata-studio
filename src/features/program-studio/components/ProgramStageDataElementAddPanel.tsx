@@ -120,24 +120,22 @@ export const ProgramStageDataElementAddPanel = (props: {
     return new Set(programStageDataElementContext?.existingDataElementIds || []);
   }, [programStageDataElementContext?.existingDataElementIds]);
 
-  const availableDataElements = useMemo(() => {
+  const listedDataElements = useMemo(() => {
     const dataElements = normalizeDataElements(data?.results);
 
     return dataElements
-      .filter((dataElement) => !existingDataElementIds.has(dataElement.id))
       .slice()
       .sort((left, right) =>
         (left.displayName || left.name || "").localeCompare(
           right.displayName || right.name || "",
         ),
       );
-  }, [data?.results, existingDataElementIds]);
+  }, [data?.results]);
 
-  const filteredAvailableDataElements = useMemo(() => {
+  const filteredDataElements = useMemo(() => {
     const normalizedSearchTerm = searchTerm.trim().toLowerCase();
 
-    return availableDataElements
-      .filter((dataElement) => {
+    return listedDataElements.filter((dataElement) => {
         if (!normalizedSearchTerm) {
           return true;
         }
@@ -148,10 +146,19 @@ export const ProgramStageDataElementAddPanel = (props: {
           .toLowerCase()
           .includes(normalizedSearchTerm);
       });
-  }, [availableDataElements, searchTerm]);
+  }, [listedDataElements, searchTerm]);
+
+  const selectableFilteredDataElements = useMemo(() => {
+    return filteredDataElements.filter(
+      (dataElement) => !existingDataElementIds.has(dataElement.id),
+    );
+  }, [existingDataElementIds, filteredDataElements]);
+
+  const lockedFilteredDataElements =
+    filteredDataElements.length - selectableFilteredDataElements.length;
 
   const shouldShowSearch =
-    availableDataElements.length > SEARCH_THRESHOLD || Boolean(searchTerm.trim());
+    listedDataElements.length > SEARCH_THRESHOLD || Boolean(searchTerm.trim());
 
   const saveError =
     localError ||
@@ -293,7 +300,10 @@ export const ProgramStageDataElementAddPanel = (props: {
                 color: colors.grey700,
               }}
             >
-              {filteredAvailableDataElements.length} available
+              {selectableFilteredDataElements.length} selectable
+              {lockedFilteredDataElements > 0
+                ? ` • ${lockedFilteredDataElements} locked`
+                : ""}
             </div>
 
             <div
@@ -305,11 +315,12 @@ export const ProgramStageDataElementAddPanel = (props: {
                 overflow: "hidden",
               }}
             >
-              {filteredAvailableDataElements.length > 0 ? (
-                filteredAvailableDataElements.map((dataElement) => {
+              {filteredDataElements.length > 0 ? (
+                filteredDataElements.map((dataElement) => {
                   const isSelected = selectedDataElementIds.includes(
                     dataElement.id,
                   );
+                  const isLocked = existingDataElementIds.has(dataElement.id);
 
                   return (
                     <label
@@ -322,11 +333,14 @@ export const ProgramStageDataElementAddPanel = (props: {
                         borderTopStyle: "solid",
                         borderTopWidth: 0.7,
                         borderTopColor: colors.grey300,
-                        cursor: "pointer",
+                        cursor: isLocked ? "not-allowed" : "pointer",
+                        opacity: isLocked ? 0.75 : 1,
+                        backgroundColor: isLocked ? colors.grey100 : colors.white,
                       }}
                     >
                       <input
-                        checked={isSelected}
+                        checked={isSelected || isLocked}
+                        disabled={isLocked}
                         type="checkbox"
                         onChange={(event) => {
                           const { checked } = event.target;
@@ -339,14 +353,30 @@ export const ProgramStageDataElementAddPanel = (props: {
                         }}
                       />
                       <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 500,
-                            color: colors.grey900,
-                          }}
-                        >
-                          {dataElement.displayName}
+                        <div className="flex items-center justify-between gap-2">
+                          <div
+                            style={{
+                              fontSize: 13,
+                              fontWeight: 500,
+                              color: colors.grey900,
+                            }}
+                          >
+                            {dataElement.displayName}
+                          </div>
+                          {isLocked && (
+                            <span
+                              style={{
+                                fontSize: 10,
+                                padding: `2px ${spacers.dp4}px`,
+                                borderRadius: 10,
+                                backgroundColor: colors.green100,
+                                color: colors.green900,
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              Added
+                            </span>
+                          )}
                         </div>
                         <div
                           style={{
@@ -362,6 +392,16 @@ export const ProgramStageDataElementAddPanel = (props: {
                     </label>
                   );
                 })
+              ) : searchTerm.trim() ? (
+                <div
+                  style={{
+                    padding: spacers.dp12,
+                    fontSize: 12,
+                    color: colors.grey700,
+                  }}
+                >
+                  No matching data elements.
+                </div>
               ) : (
                 <div
                   style={{
@@ -370,8 +410,8 @@ export const ProgramStageDataElementAddPanel = (props: {
                     color: colors.grey700,
                   }}
                 >
-                  No available data elements. Create a new one to add it
-                  directly to the stage.
+                  No data elements found. Create a new one to add it directly to
+                  the stage.
                 </div>
               )}
             </div>
