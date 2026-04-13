@@ -32,9 +32,14 @@ const dataSetQuery = {
 };
 
 export const MetaDataPanel = (props: {
+  onCreateNew?: (props: {
+    programType: "WITH_REGISTRATION" | "WITHOUT_REGISTRATION";
+    resource: "programs";
+  }) => void;
   onSelect: (props: { id: string; resource: string }) => void;
+  refreshToken?: number;
 }) => {
-  const { onSelect } = props;
+  const { onCreateNew, onSelect, refreshToken } = props;
   return (
     <div
       className="fixed left-0 top-12 w-72 h-100 bg-white"
@@ -53,9 +58,25 @@ export const MetaDataPanel = (props: {
           primary
           component={
             <FlyoutMenu>
-              <MenuItem label="Tracker Program" />
-              <MenuItem label="Event Program" />
-              <MenuItem label="Data set" />
+              <MenuItem
+                label="Tracker Program"
+                onClick={() => {
+                  onCreateNew?.({
+                    programType: "WITH_REGISTRATION",
+                    resource: "programs",
+                  });
+                }}
+              />
+              <MenuItem
+                label="Event Program"
+                onClick={() => {
+                  onCreateNew?.({
+                    programType: "WITHOUT_REGISTRATION",
+                    resource: "programs",
+                  });
+                }}
+              />
+              <MenuItem disabled label="Data set" />
             </FlyoutMenu>
           }
           icon={<IconAdd24 />}
@@ -77,6 +98,7 @@ export const MetaDataPanel = (props: {
       >
         <Menu>
           <MetaDataGroup
+            key={`programs-${refreshToken || 0}`}
             label="Programs"
             query={programQuery}
             onSelect={(props: any) => {
@@ -84,6 +106,7 @@ export const MetaDataPanel = (props: {
             }}
           />
           <MetaDataGroup
+            key={`data-sets-${refreshToken || 0}`}
             label="Data sets"
             query={dataSetQuery}
             onSelect={(props: any) => {

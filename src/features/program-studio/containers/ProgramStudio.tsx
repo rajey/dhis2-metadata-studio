@@ -174,7 +174,7 @@ export const ProgramStudio = (props: {
       }
     });
 
-    if (isTrackerProgram) {
+    if (isTrackerProgram || programStages.length === 0) {
       const placeholderNodeId = `program-stage-placeholder-${program.id}`;
 
       nextNodes.push({
@@ -192,14 +192,16 @@ export const ProgramStudio = (props: {
         type: "programStagePlaceholderNode",
       });
 
-      nextEdges.push({
-        id: `${program.id}-${placeholderNodeId}`,
-        source: program.id,
-        target: placeholderNodeId,
-        style: {
-          strokeDasharray: "4 4",
-        },
-      });
+      if (showProgramNode) {
+        nextEdges.push({
+          id: `${program.id}-${placeholderNodeId}`,
+          source: program.id,
+          target: placeholderNodeId,
+          style: {
+            strokeDasharray: "4 4",
+          },
+        });
+      }
     }
 
     return { nodes: nextNodes, edges: nextEdges };

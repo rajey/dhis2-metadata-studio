@@ -2,6 +2,7 @@ import { colors, elevations } from "@dhis2/ui";
 import React from "react";
 import { ProgramAttributeAddPanel } from "../features/program-studio/components/ProgramAttributeAddPanel";
 import { ProgramAttributeEditorPanel } from "../features/program-studio/components/ProgramAttributeEditorPanel";
+import { ProgramCreatePanel } from "../features/program-studio/components/ProgramCreatePanel";
 import { ProgramEditorPanel } from "../features/program-studio/components/ProgramEditorPanel";
 import { ProgramStageAddPanel } from "../features/program-studio/components/ProgramStageAddPanel";
 import { ProgramStageDataElementAddPanel } from "../features/program-studio/components/ProgramStageDataElementAddPanel";
@@ -12,6 +13,7 @@ export const ToolBar = (props: {
   addingProgramAttribute?: any | null;
   addingProgramStage?: any | null;
   addingProgramStageDataElement?: any | null;
+  creatingProgram?: any | null;
   editingProgram?: any | null;
   editingProgramAttribute?: any | null;
   editingProgramStageDataElement?: any | null;
@@ -19,6 +21,7 @@ export const ToolBar = (props: {
   onCloseProgramEditor: () => void;
   onProgramAttributeAdded: () => void;
   onProgramAttributeSaved: (programAttribute: any) => void;
+  onProgramCreated: (program: any) => void;
   onProgramSaved: (program: any) => void;
   onProgramStageAdded: () => void;
   onProgramStageDataElementAdded: () => void;
@@ -29,6 +32,7 @@ export const ToolBar = (props: {
     addingProgramAttribute,
     addingProgramStage,
     addingProgramStageDataElement,
+    creatingProgram,
     editingProgram,
     editingProgramAttribute,
     editingProgramStageDataElement,
@@ -36,6 +40,7 @@ export const ToolBar = (props: {
     onCloseProgramEditor,
     onProgramAttributeAdded,
     onProgramAttributeSaved,
+    onProgramCreated,
     onProgramSaved,
     onProgramStageAdded,
     onProgramStageDataElementAdded,
@@ -54,7 +59,13 @@ export const ToolBar = (props: {
         borderLeftColor: colors.grey500,
       }}
     >
-      {addingProgramAttribute ? (
+      {creatingProgram ? (
+        <ProgramCreatePanel
+          onClose={onCloseProgramEditor}
+          onCreated={onProgramCreated}
+          programCreateContext={creatingProgram}
+        />
+      ) : addingProgramAttribute ? (
         <ProgramAttributeAddPanel
           programAttributeContext={addingProgramAttribute}
           onClose={onCloseProgramEditor}
