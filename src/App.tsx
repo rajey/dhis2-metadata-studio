@@ -92,6 +92,15 @@ const MetadataStudioApp: FC = () => {
               setEditingProgramStage(null);
             }}
             onInspectNode={(nodeSummary) => {
+              setCreatingProgram(null);
+              setEditingTrackedEntityType(null);
+              setEditingProgram(null);
+              setAddingProgramAttribute(null);
+              setEditingProgramAttribute(null);
+              setAddingProgramStage(null);
+              setAddingProgramStageDataElement(null);
+              setEditingProgramStageDataElement(null);
+              setEditingProgramStage(null);
               setInspectingNode(nodeSummary);
             }}
             onEditTrackedEntityType={(trackedEntityType) => {
