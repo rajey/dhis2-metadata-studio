@@ -31,22 +31,7 @@ const MetadataStudioApp: FC = () => {
   const [programRefreshToken, setProgramRefreshToken] = useState(0);
 
   useEffect(() => {
-    const editingProgramId =
-      editingProgram?.id ||
-      editingTrackedEntityType?.programId ||
-      addingProgramAttribute?.programId ||
-      addingProgramStage?.programId ||
-      editingProgramStage?.program?.id ||
-      addingProgramStageDataElement?.programId ||
-      editingProgramStageDataElement?.programId ||
-      editingProgramAttribute?.programId ||
-      null;
-
-    if (
-      !selectedMetaData ||
-      selectedMetaData.resource !== "programs" ||
-      (editingProgramId && selectedMetaData.id !== editingProgramId)
-    ) {
+    if (!selectedMetaData || selectedMetaData.resource !== "programs") {
       setEditingProgram(null);
       setInspectingNode(null);
       setAddingProgramAttribute(null);
@@ -58,18 +43,6 @@ const MetadataStudioApp: FC = () => {
       setEditingProgramStage(null);
     }
   }, [
-    addingProgramAttribute?.programId,
-    addingProgramStage?.programId,
-    addingProgramStageDataElement?.programId,
-    editingProgram?.id,
-    editingTrackedEntityType?.id,
-    editingTrackedEntityType?.programId,
-    editingProgramAttribute?.id,
-    editingProgramAttribute?.programId,
-    editingProgramStageDataElement?.id,
-    editingProgramStageDataElement?.programId,
-    editingProgramStage?.id,
-    editingProgramStage?.program?.id,
     selectedMetaData,
   ]);
 
@@ -243,6 +216,13 @@ const MetadataStudioApp: FC = () => {
           setCreatingProgram(null);
           setInspectingNode(null);
           setEditingTrackedEntityType(null);
+          setEditingProgram(null);
+          setAddingProgramAttribute(null);
+          setEditingProgramAttribute(null);
+          setAddingProgramStage(null);
+          setAddingProgramStageDataElement(null);
+          setEditingProgramStageDataElement(null);
+          setEditingProgramStage(null);
           setSelectedMetaData(selectedMetaData);
         }}
         refreshToken={programRefreshToken}
