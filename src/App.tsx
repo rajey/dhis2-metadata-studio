@@ -29,6 +29,18 @@ const MetadataStudioApp: FC = () => {
     null
   );
   const [programRefreshToken, setProgramRefreshToken] = useState(0);
+  const isToolbarVisible = Boolean(
+    creatingProgram ||
+      inspectingNode ||
+      editingTrackedEntityType ||
+      editingProgram ||
+      addingProgramAttribute ||
+      editingProgramAttribute ||
+      addingProgramStageDataElement ||
+      editingProgramStageDataElement ||
+      addingProgramStage ||
+      editingProgramStage,
+  );
 
   useEffect(() => {
     if (!selectedMetaData || selectedMetaData.resource !== "programs") {
@@ -227,143 +239,151 @@ const MetadataStudioApp: FC = () => {
         }}
         refreshToken={programRefreshToken}
       />
-      <div className="studio-design-area">{designArea}</div>
-      <ToolBar
-        addingProgramAttribute={addingProgramAttribute}
-        addingProgramStage={addingProgramStage}
-        addingProgramStageDataElement={addingProgramStageDataElement}
-        creatingProgram={creatingProgram}
-        editingProgram={editingProgram}
-        editingProgramAttribute={editingProgramAttribute}
-        editingProgramStageDataElement={editingProgramStageDataElement}
-        editingProgramStage={editingProgramStage}
-        editingTrackedEntityType={editingTrackedEntityType}
-        inspectingNode={inspectingNode}
-        onCloseProgramEditor={() => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-        }}
-        onProgramAttributeAdded={() => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setAddingProgramAttribute(null);
-          setEditingProgram(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onProgramSaved={(program) => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setEditingProgram(program);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onProgramAttributeSaved={(programAttribute) => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setEditingProgramAttribute(programAttribute);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onProgramStageAdded={() => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setAddingProgramStage(null);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onProgramStageDataElementAdded={() => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onProgramStageDataElementSaved={(programStageDataElement) => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setEditingProgramStageDataElement(programStageDataElement);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onProgramStageSaved={(programStage) => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(null);
-          setEditingProgramStage(programStage);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onProgramCreated={(program) => {
-          setCreatingProgram(null);
-          setInspectingNode(null);
-          setEditingTrackedEntityType(null);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setSelectedMetaData({
-            id: program.id,
-            resource: "programs",
-          });
-          setProgramRefreshToken((value) => value + 1);
-        }}
-        onTrackedEntityTypeSaved={(trackedEntityType) => {
-          setCreatingProgram(null);
-          setEditingTrackedEntityType(trackedEntityType);
-          setEditingProgram(null);
-          setAddingProgramAttribute(null);
-          setEditingProgramAttribute(null);
-          setAddingProgramStage(null);
-          setAddingProgramStageDataElement(null);
-          setEditingProgramStageDataElement(null);
-          setEditingProgramStage(null);
-          setProgramRefreshToken((value) => value + 1);
-        }}
-      />
+      <div
+        className={`studio-design-area${
+          isToolbarVisible ? " studio-design-area--with-toolbar" : ""
+        }`}
+      >
+        {designArea}
+      </div>
+      {isToolbarVisible && (
+        <ToolBar
+          addingProgramAttribute={addingProgramAttribute}
+          addingProgramStage={addingProgramStage}
+          addingProgramStageDataElement={addingProgramStageDataElement}
+          creatingProgram={creatingProgram}
+          editingProgram={editingProgram}
+          editingProgramAttribute={editingProgramAttribute}
+          editingProgramStageDataElement={editingProgramStageDataElement}
+          editingProgramStage={editingProgramStage}
+          editingTrackedEntityType={editingTrackedEntityType}
+          inspectingNode={inspectingNode}
+          onCloseProgramEditor={() => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+          }}
+          onProgramAttributeAdded={() => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setAddingProgramAttribute(null);
+            setEditingProgram(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onProgramSaved={(program) => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setEditingProgram(program);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onProgramAttributeSaved={(programAttribute) => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setEditingProgramAttribute(programAttribute);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onProgramStageAdded={() => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setAddingProgramStage(null);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onProgramStageDataElementAdded={() => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onProgramStageDataElementSaved={(programStageDataElement) => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setEditingProgramStageDataElement(programStageDataElement);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onProgramStageSaved={(programStage) => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(null);
+            setEditingProgramStage(programStage);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onProgramCreated={(program) => {
+            setCreatingProgram(null);
+            setInspectingNode(null);
+            setEditingTrackedEntityType(null);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setSelectedMetaData({
+              id: program.id,
+              resource: "programs",
+            });
+            setProgramRefreshToken((value) => value + 1);
+          }}
+          onTrackedEntityTypeSaved={(trackedEntityType) => {
+            setCreatingProgram(null);
+            setEditingTrackedEntityType(trackedEntityType);
+            setEditingProgram(null);
+            setAddingProgramAttribute(null);
+            setEditingProgramAttribute(null);
+            setAddingProgramStage(null);
+            setAddingProgramStageDataElement(null);
+            setEditingProgramStageDataElement(null);
+            setEditingProgramStage(null);
+            setProgramRefreshToken((value) => value + 1);
+          }}
+        />
+      )}
     </>
   );
 };
